@@ -44,7 +44,7 @@ fn tokenize(html: &str) -> Vec<Token> {
     let tag_soup = Regex::new("(?P<text>[^<]*)(?P<tag><!--.*?--\\s*>|<[^>]*>)?").unwrap();
 
     for cap in tag_soup.captures_iter(html) {
-        if cap["text"].len() > 0 {
+        if !cap["text"].is_empty() {
             tokens.push(Token::Text(cap["text"].to_owned()));
         }
 
@@ -68,7 +68,7 @@ fn tokenize(html: &str) -> Vec<Token> {
                 let tag = tag_match.as_str();
                 if tag.starts_with("<!--") {
                     // remove --[white space]> from the end of tag
-                    let tag_contents = tag.trim_start_matches("<!--").trim_end_matches(">").trim_end().trim_end_matches("-");
+                    let tag_contents = tag.trim_start_matches("<!--").trim_end_matches('>').trim_end().trim_end_matches('-');
 
                     if tag_contents.contains("--") {
                         tokens.push(Token::Text(cap["tag"].to_owned()));
