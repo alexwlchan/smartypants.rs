@@ -11,18 +11,18 @@ mod tests;
 use config::{Config, DashesBehaviour, EllipsesBehaviour, QuotesBehaviour};
 use tokenize::Token;
 
-// This is used to match tags where we don't want to do any corrections.
-//
-// This list of tags is taken from the Python implementation, adding a few
-// newer HTML tags that aren't skipped in the latest version of Markdown.pl.
-//
-lazy_static! {
-    static ref TAGS_TO_SKIP_REGEX: Regex = Regex::new(
-        "<(?P<closing_slash>/)?(?P<tag_name>pre|samp|code|tt|kbd|script|style|math)[^>]*>").unwrap();
-}
-
 fn handle_tag_token(contents: String, result: &mut Vec<String>, skipped_tag_stack: &mut Vec<String>) -> () {
     result.push(contents.to_owned());
+
+    // This is used to match tags where we don't want to do any corrections.
+    //
+    // This list of tags is taken from the Python implementation, adding a few
+    // newer HTML tags that aren't skipped in the latest version of Markdown.pl.
+    //
+    lazy_static! {
+        static ref TAGS_TO_SKIP_REGEX: Regex = Regex::new(
+            "<(?P<closing_slash>/)?(?P<tag_name>pre|samp|code|tt|kbd|script|style|math)[^>]*>").unwrap();
+    }
 
     // Don't mess with quotes inside some tags, e.g. we don't
     // want to change the contents of a <pre>.
@@ -99,7 +99,10 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
             QuotesBehaviour::DoNothing      => text,
         };
 
-        let text = converters::convert_quotes(&text, config, &prev_token_last_char);
+        let text = match config.quote_chars {
+            QuotesBehaviour::ConvertToCurly => converters::convert_quotes(&text, &prev_token_last_char),
+            QuotesBehaviour::DoNothing      => text,
+        };
 
         text
     };
