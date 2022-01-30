@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod smartypants_tests {
     use crate::smartypants;
-    use crate::{Config, DashesConfig};
+    use crate::{Config, DashesConfig, QuotesBehaviour};
 
     #[test]
     fn it_converts_double_dash_to_en_dash() {
@@ -9,6 +9,8 @@ mod smartypants_tests {
             double_dash: DashesConfig::EnDash,
             triple_dash: DashesConfig::DoNothing,
             ellipses: false,
+            double_backticks: QuotesBehaviour::DoNothing,
+            single_backticks: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Nothing endures but change. -- Heraclitus", &config);
@@ -21,6 +23,8 @@ mod smartypants_tests {
             double_dash: DashesConfig::EnDash,
             triple_dash: DashesConfig::EmDash,
             ellipses: false,
+            double_backticks: QuotesBehaviour::DoNothing,
+            single_backticks: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Life itself is the proper binge. --- Julia Child (1912--2004)", &config);
@@ -33,6 +37,8 @@ mod smartypants_tests {
             double_dash: DashesConfig::EmDash,
             triple_dash: DashesConfig::EnDash,
             ellipses: false,
+            double_backticks: QuotesBehaviour::DoNothing,
+            single_backticks: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Dare to be naïve. -- Buckminster Fuller (1895---1983)", &config);
@@ -45,6 +51,8 @@ mod smartypants_tests {
             double_dash: DashesConfig::DoNothing,
             triple_dash: DashesConfig::DoNothing,
             ellipses: true,
+            double_backticks: QuotesBehaviour::DoNothing,
+            single_backticks: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -60,6 +68,8 @@ mod smartypants_tests {
             double_dash: DashesConfig::DoNothing,
             triple_dash: DashesConfig::DoNothing,
             ellipses: false,
+            double_backticks: QuotesBehaviour::DoNothing,
+            single_backticks: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -67,5 +77,33 @@ mod smartypants_tests {
 
         let result = smartypants("Huh. . .?", &config);
         assert_eq!(result, "Huh. . .?");
+    }
+
+    #[test]
+    fn it_converts_backticks() {
+        let config = Config{
+            double_dash: DashesConfig::DoNothing,
+            triple_dash: DashesConfig::DoNothing,
+            ellipses: false,
+            double_backticks: QuotesBehaviour::ConvertToCurly,
+            single_backticks: QuotesBehaviour::DoNothing,
+        };
+
+        let result = smartypants("``Isn't this fun?''", &config);
+        assert_eq!(result, "&#8220;Isn't this fun?&#8221;");
+
+        let config = Config{
+            double_dash: DashesConfig::DoNothing,
+            triple_dash: DashesConfig::DoNothing,
+            ellipses: false,
+            double_backticks: QuotesBehaviour::ConvertToCurly,
+            single_backticks: QuotesBehaviour::ConvertToCurly,
+        };
+
+        let result = smartypants("``Isn't this fun?''", &config);
+        assert_eq!(result, "&#8220;Isn&#8217;t this fun?&#8221;");
+
+        let result = smartypants("`Isn't this fun?'", &config);
+        assert_eq!(result, "&#8216;Isn&#8217;t this fun?&#8217;");
     }
 }

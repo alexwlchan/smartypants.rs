@@ -8,7 +8,7 @@ pub mod converters;
 mod tokenize;
 mod tests;
 
-use config::{Config, DashesConfig};
+use config::{Config, DashesConfig, QuotesBehaviour};
 use tokenize::Token;
 
 // This is used to match tags where we don't want to do any corrections.
@@ -79,18 +79,26 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
     let processed_text = if in_skipped_tag {
         text
     } else {
-        println!("need to do processing on {:?}", text);
         let text = converters::process_escapes(&text);
         let text = converters::convert_dashes(&text, config);
-
-        println!("@@AWLC text = {}", text);
 
         let text = if config.ellipses {
             converters::convert_ellipses(&text)
         } else {
             text
         };
-        println!("@@AWLC text = {}", text);
+
+        // Note: backticks need to be processed before quotes, and double
+        // backticks need to be processed before single backticks.
+        let text = match config.double_backticks {
+            QuotesBehaviour::ConvertToCurly => converters::convert_double_backticks(&text),
+            QuotesBehaviour::DoNothing      => text,
+        };
+
+        let text = match config.single_backticks {
+            QuotesBehaviour::ConvertToCurly => converters::convert_single_backticks(&text),
+            QuotesBehaviour::DoNothing      => text,
+        };
 
         text
     };
