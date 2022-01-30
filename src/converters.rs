@@ -1,3 +1,5 @@
+use crate::{Config, DashesConfig};
+
 /// Process the following backslash escape sequences in `text`.
 ///
 /// This is useful if you want to force a "dumb" quote or other character
@@ -41,4 +43,32 @@ pub fn process_escapes(text: &str) -> String {
         .replace(r"\.", "&#46;")
         .replace(r"\-", "&#45;")
         .replace(r"\`", "&#96;")
+}
+
+/// Convert `--` and `---` into HTML entities.
+pub fn convert_dashes(text: &str, config: &Config) -> String {
+    let enDash = "&#8211;";
+    let emDash = "&#8212;";
+
+    let triple_dash_replacement = match config.tripleDash {
+        DashesConfig::DoNothing => "---",
+        DashesConfig::EnDash    => enDash,
+        DashesConfig::EmDash    => emDash,
+    };
+
+    let double_dash_replacement = match config.doubleDash {
+        DashesConfig::DoNothing => "--",
+        DashesConfig::EnDash    => enDash,
+        DashesConfig::EmDash    => emDash,
+    };
+
+
+    // Note: we have to do the triple dash replacement before the
+    // double dash replacement, otherwise we'll get weird results.
+    //
+    // e.g. "a---b" could become "a&#8211;-b" rather than "a&#8212;b".
+    //
+    text
+        .replace("---", triple_dash_replacement)
+        .replace("--", double_dash_replacement)
 }

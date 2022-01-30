@@ -3,17 +3,12 @@ extern crate lazy_static;
 
 use regex::Regex;
 
+pub mod config;
 pub mod converters;
 mod tokenize;
 
+use config::{Config, DashesConfig};
 use tokenize::Token;
-
-#[derive(Debug)]
-pub struct Config {
-    pub convert_em_dashes: boolean,
-    Tag(String),
-    Text(String),
-}
 
 // This is used to match tags where we don't want to do any corrections.
 //
@@ -73,7 +68,7 @@ fn handle_tag_token(contents: String, result: &mut Vec<String>, skipped_tag_stac
     }
 }
 
-fn handle_text_token(text: String, prev_token_last_char: &mut Option<char>, result: &mut Vec<String>, in_skipped_tag: bool) -> () {
+fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut Option<char>, result: &mut Vec<String>, in_skipped_tag: bool) -> () {
 
     // Remember the last character of this token before processing.
     //
@@ -85,6 +80,7 @@ fn handle_text_token(text: String, prev_token_last_char: &mut Option<char>, resu
     } else {
         println!("need to do processing on {:?}", text);
         let text = converters::process_escapes(&text);
+        let text = converters::convert_dashes(&text, config);
         text
     };
 
@@ -92,7 +88,7 @@ fn handle_text_token(text: String, prev_token_last_char: &mut Option<char>, resu
     result.push(processed_text);
 }
 
-pub fn smartypants(text: &str) -> String {
+pub fn smartypants(text: &str, config: &Config) -> String {
     let mut result: Vec<String> = vec![];
 
     // Records whether we're in any skipped tags where we don't
@@ -110,7 +106,7 @@ pub fn smartypants(text: &str) -> String {
             Token::Tag(contents) => handle_tag_token(contents, &mut result, &mut skipped_tag_stack),
             Token::Text(contents) => {
                 let in_skipped_tag = !skipped_tag_stack.is_empty();
-                handle_text_token(contents, &mut prev_token_last_char, &mut result, in_skipped_tag);
+                handle_text_token(contents, &config, &mut prev_token_last_char, &mut result, in_skipped_tag);
             },
         }
     }
@@ -121,24 +117,40 @@ pub fn smartypants(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use crate::smartypants;
+    use crate::{Config, DashesConfig};
 
     #[test]
     fn it_handles_a_simple_string() {
-        let result = smartypants("This is a simple string");
+        let config = Config {
+            doubleDash: DashesConfig::EnDash,
+            tripleDash: DashesConfig::EmDash,
+        };
+
+        let result = smartypants("This is a simple string", &config);
         let expected = "This is a simple string";
         assert_eq!(result, expected.to_owned());
     }
 
     #[test]
     fn it_handles_another_simple_string() {
-        let result = smartypants("<p>He said Hello</p>");
+        let config = Config {
+            doubleDash: DashesConfig::EnDash,
+            tripleDash: DashesConfig::EmDash,
+        };
+
+        let result = smartypants("<p>He said Hello</p>", &config);
         let expected = "<p>He said Hello</p>";
         assert_eq!(1, 0);
     }
 
     #[test]
     fn it_skips_tags_even_if_they_have_quotes() {
-        let result = smartypants("<pre>This isn't text</pre>");
+        let config = Config {
+            doubleDash: DashesConfig::EnDash,
+            tripleDash: DashesConfig::EmDash,
+        };
+
+        let result = smartypants("<pre>This isn't text</pre>", &config);
         let expected = "<pre>This isn't text</pre>";
         assert_eq!(result, expected.to_owned());
         assert_eq!(1, 0);
