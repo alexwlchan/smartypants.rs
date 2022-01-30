@@ -16,6 +16,21 @@ impl PartialEq for Token {
     }
 }
 
+// Note: this regex is slightly different to the one used by
+// Smartypants.pl or Leo Hemsted's library.
+//
+// In particular:
+//
+//    - it uses named capture groups for clarity in the code that follows
+//    - the 'tag' group is optional -- that allows us to get any text
+//      that comes after the final tag as the final Capture, rather
+//      than slicing into the string
+//
+
+lazy_static! {
+    static ref TAG_SOUP: Regex = Regex::new("(?P<text>[^<]*)(?P<tag><!--.*?--\\s*>|<[^>]*>)?").unwrap();
+}
+
 /// Returns an array of tokens comprising the input string.
 ///
 /// Each token is either a tag (possibly with nested tags contained therein,
@@ -31,19 +46,7 @@ impl PartialEq for Token {
 fn tokenize(html: &str) -> Vec<Token> {
     let mut tokens = vec!();
 
-    // Note: this regex is slightly different to the one used by
-    // Smartypants.pl or Leo Hemsted's library.
-    //
-    // In particular:
-    //
-    //    - it uses named capture groups for clarity in the code that follows
-    //    - the 'tag' group is optional -- that allows us to get any text
-    //      that comes after the final tag as the final Capture, rather
-    //      than slicing into the string
-    //
-    let tag_soup = Regex::new("(?P<text>[^<]*)(?P<tag><!--.*?--\\s*>|<[^>]*>)?").unwrap();
-
-    for cap in tag_soup.captures_iter(html) {
+    for cap in (*TAG_SOUP).captures_iter(html) {
         if !cap["text"].is_empty() {
             tokens.push(Token::Text(cap["text"].to_owned()));
         }
