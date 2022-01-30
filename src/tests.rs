@@ -11,6 +11,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Nothing endures but change. -- Heraclitus", &config);
@@ -25,6 +26,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Life itself is the proper binge. --- Julia Child (1912--2004)", &config);
@@ -39,6 +41,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Dare to be naïve. -- Buckminster Fuller (1895---1983)", &config);
@@ -53,6 +56,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::ConvertToEntity,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -70,6 +74,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -87,6 +92,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::ConvertToCurly,
             single_backticks: QuotesBehaviour::DoNothing,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("``Isn't this fun?''", &config);
@@ -98,6 +104,7 @@ mod smartypants_tests {
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::ConvertToCurly,
             single_backticks: QuotesBehaviour::ConvertToCurly,
+            quote_chars: QuotesBehaviour::DoNothing,
         };
 
         let result = smartypants("``Isn't this fun?''", &config);

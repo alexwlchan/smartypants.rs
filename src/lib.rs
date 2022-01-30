@@ -74,7 +74,7 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
     // Remember the last character of this token before processing.
     //
     // We know that text-tokens are non-empty, so the unwrap() is safe here.
-    let last_char = text.chars().last().unwrap();
+    let this_token_last_char = text.chars().last().unwrap();
 
     let processed_text = if in_skipped_tag {
         text
@@ -99,10 +99,12 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
             QuotesBehaviour::DoNothing      => text,
         };
 
+        let text = converters::convert_quotes(&text, config, &prev_token_last_char);
+
         text
     };
 
-    *prev_token_last_char = Some(last_char);
+    *prev_token_last_char = Some(this_token_last_char);
     result.push(processed_text);
 }
 

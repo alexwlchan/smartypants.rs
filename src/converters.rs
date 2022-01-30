@@ -1,3 +1,5 @@
+use regex::Regex;
+
 use crate::{Config, DashesBehaviour, QuotesBehaviour};
 
 const SINGLE_STRAIGHT_QUOTE_ENTITY: &str = "&#39";          // '
@@ -76,4 +78,45 @@ pub fn convert_single_backticks(text: &str) -> String {
     text
         .replace("`", OPENING_SINGLE_CURLY_QUOTE_ENTITY)
         .replace("'", CLOSING_SINGLE_CURLY_QUOTE_ENTITY)
+}
+
+/// Converts normal quotes (`"` and `'`) into HTML curly quote entities.
+pub fn convert_quotes(text: &str, config: &Config, prev_token_last_char: &Option<char>) -> String {
+    match text {
+        "\'" =>
+            // Special case: single-character ' token
+            //
+            // If the last character of the previous token was whitespace,
+            // then this is an opening quote, otherwise it's a closing quote.
+            //
+            // e.g. if the previous token was "hello ", then we'd do "hello‘",
+            // whereas if the previous token was "isn", then we'd do "isn’".
+            //
+            if is_whitespace(prev_token_last_char) {
+                return OPENING_SINGLE_CURLY_QUOTE_ENTITY.to_string();
+            } else {
+                return CLOSING_SINGLE_CURLY_QUOTE_ENTITY.to_string();
+            },
+
+        "\"" =>
+            // Special case: single-character " token.
+            //
+            // We apply the same logic as the previous case, but we use the
+            // double quote entities.
+            if is_whitespace(prev_token_last_char) {
+                return OPENING_DOUBLE_CURLY_QUOTE_ENTITY.to_string();
+            } else {
+                return CLOSING_DOUBLE_CURLY_QUOTE_ENTITY.to_string();
+            },
+
+        _ => text.to_string(),
+    }
+}
+
+/// Returns true if `c` is whitespace, false otherwise
+fn is_whitespace(maybeChar: &Option<char>) -> bool {
+    match maybeChar {
+        Some(c) => Regex::new(r"\s").unwrap().is_match(&c.to_string()),
+        _       => false,
+    }
 }

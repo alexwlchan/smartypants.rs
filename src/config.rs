@@ -29,10 +29,10 @@ pub enum QuotesBehaviour {
 }
 
 pub struct Config {
-    /// How to convert double dashes (`--`)
+    /// Whether to convert double dashes (`--`) to en/em dashes
     pub double_dash: DashesBehaviour,
 
-    /// How to convert triple dashes (`---`)
+    /// Whether to convert triple dashes (`---`) to en/em dashes
     pub triple_dash: DashesBehaviour,
 
     /// Whether to convert ellipses (`...`) into ellipsis HTML entities
@@ -43,4 +43,7 @@ pub struct Config {
 
     /// Whether to convert single backticks (``single'`) to curly quotes
     pub single_backticks: QuotesBehaviour,
+
+    /// Whether to convert normal quotes (`"` and `'`) to curly quotes
+    pub quote_chars: QuotesBehaviour,
 }
