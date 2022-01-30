@@ -8,7 +8,7 @@ pub mod converters;
 mod tokenize;
 mod tests;
 
-use config::{Config, DashesConfig, QuotesBehaviour};
+use config::{Config, DashesConfig, EllipsesBehaviour, QuotesBehaviour};
 use tokenize::Token;
 
 // This is used to match tags where we don't want to do any corrections.
@@ -82,10 +82,9 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
         let text = converters::process_escapes(&text);
         let text = converters::convert_dashes(&text, config);
 
-        let text = if config.ellipses {
-            converters::convert_ellipses(&text)
-        } else {
-            text
+        let text = match config.ellipses {
+            EllipsesBehaviour::ConvertToEntity => converters::convert_ellipses(&text),
+            EllipsesBehaviour::DoNothing       => text,
         };
 
         // Note: backticks need to be processed before quotes, and double
