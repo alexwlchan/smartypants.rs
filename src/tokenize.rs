@@ -68,7 +68,12 @@ fn tokenize(html: &str) -> Vec<Token> {
                 let tag = tag_match.as_str();
                 if tag.starts_with("<!--") {
                     // remove --[white space]> from the end of tag
-                    let tag_contents = tag.trim_start_matches("<!--").trim_end_matches('>').trim_end().trim_end_matches('-');
+                    let tag_contents =
+                        tag
+                            .trim_start_matches("<!--")
+                            .trim_end_matches('>')
+                            .trim_end()
+                            .trim_end_matches('-');
 
                     if tag_contents.contains("--") {
                         tokens.push(Token::Text(cap["tag"].to_owned()));
