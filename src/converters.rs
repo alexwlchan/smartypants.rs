@@ -1,43 +1,36 @@
 use crate::{Config, DashesConfig, QuotesBehaviour};
 
-const EN_DASH_ENTITY: &str = "&#8211;";
-const EM_DASH_ENTITY: &str = "&#8212;";
+const SINGLE_STRAIGHT_QUOTE_ENTITY: &str = "&#39";          // '
+const DOUBLE_STRAIGHT_QUOTE_ENTITY: &str = "&#34";          // "
 
-const SINGLE_OPENING_QUOTE_ENTITY: &str = "&#8216;";
-const SINGLE_CLOSING_QUOTE_ENTITY: &str = "&#8217;";
+const HYPHEN_ENTITY: &str = "&#45;";                        // -
+const FULL_STOP_ENTITY: &str = "&#46";                      // .
 
-const DOUBLE_OPENING_QUOTE_ENTITY: &str = "&#8220;";
-const DOUBLE_CLOSING_QUOTE_ENTITY: &str = "&#8221;";
+const SINGLE_BACKSLASH_ENTITY: &str = "&#92;";              // \
 
-/// Process the following backslash escape sequences in `text`.
+const BACKTICK_ENTITY: &str = "&#96;";                      // `
+
+const EN_DASH_ENTITY: &str = "&#8211;";                     // –
+const EM_DASH_ENTITY: &str = "&#8212;";                     // —
+
+const OPENING_SINGLE_CURLY_QUOTE_ENTITY: &str = "&#8216;";  // ‘
+const CLOSING_SINGLE_CURLY_QUOTE_ENTITY: &str = "&#8217;";  // ’
+
+const OPENING_DOUBLE_CURLY_QUOTE_ENTITY: &str = "&#8220;";  // “
+const CLOSING_DOUBLE_CURLY_QUOTE_ENTITY: &str = "&#8221;";  // ”
+
+/// Apply a series of backslash escapes in `text`.
 ///
 /// This is useful if you want to force a "dumb" quote or other character
 /// to appear.
-///
-/// +--------+-----------+-----------+
-/// | Escape | Value     | Character |
-/// +========+===========+===========+
-/// | ``\\`` | ``&#92;`` | ``\``     |
-/// +--------+-----------+-----------+
-/// | ``\"`` | ``&#34;`` | ``"``     |
-/// +--------+-----------+-----------+
-/// | ``\'`` | ``&#39;`` | ``'``     |
-/// +--------+-----------+-----------+
-/// | ``\.`` | ``&#46;`` | ``.``     |
-/// +--------+-----------+-----------+
-/// | ``\-`` | ``&#45;`` | ``-``     |
-/// +--------+-----------+-----------+
-/// | ``\``` | ``&#96;`` | ``\```    |
-/// +--------+-----------+-----------+
-///
 pub fn process_escapes(text: &str) -> String {
     text
-        .replace(r"\\", "&#92;")
-        .replace("\\\"", "&#34;")
-        .replace(r"\'", "&#39;")
-        .replace(r"\.", "&#46;")
-        .replace(r"\-", "&#45;")
-        .replace(r"\`", "&#96;")
+        .replace(r"\\",  SINGLE_BACKSLASH_ENTITY)
+        .replace("\\\"", DOUBLE_STRAIGHT_QUOTE_ENTITY)
+        .replace(r"\'",  SINGLE_STRAIGHT_QUOTE_ENTITY)
+        .replace(r"\.",  FULL_STOP_ENTITY)
+        .replace(r"\-",  HYPHEN_ENTITY)
+        .replace(r"\`",  BACKTICK_ENTITY)
 }
 
 /// Convert `--` and `---` in `text` into HTML entities.
@@ -74,13 +67,13 @@ pub fn convert_ellipses(text: &str) -> String {
 /// Converts ```double backticks''`-style quotes in `text` into HTML curly quote entities.
 pub fn convert_double_backticks(text: &str) -> String {
     text
-        .replace("``", DOUBLE_OPENING_QUOTE_ENTITY)
-        .replace("''", DOUBLE_CLOSING_QUOTE_ENTITY)
+        .replace("``", OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
+        .replace("''", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY)
 }
 
 /// Converts ``single backticks'`-style quotes in `text` into HTML curly quote entities.
 pub fn convert_single_backticks(text: &str) -> String {
     text
-        .replace("`", SINGLE_OPENING_QUOTE_ENTITY)
-        .replace("'", SINGLE_CLOSING_QUOTE_ENTITY)
+        .replace("`", OPENING_SINGLE_CURLY_QUOTE_ENTITY)
+        .replace("'", CLOSING_SINGLE_CURLY_QUOTE_ENTITY)
 }
