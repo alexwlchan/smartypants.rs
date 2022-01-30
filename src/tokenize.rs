@@ -1,3 +1,26 @@
+// This file implements a tokenizer for HTML strings.
+//
+// In particular, it splits a string into tag tokens and text tokens.
+// This is important because we want to treat the two differently when
+// applying the Smartypants conversions:
+//
+//  1.  Text tokens may have conversions applied, but tag tokens
+//      should never have conversions applied.
+//
+//      e.g. we'd convert Text("isn't this nice") to "isn’t this nice",
+//      but we'd leave Tag(<a href="example.com">) as-is – applying any
+//      conversions there would potentially break the document.
+//
+//  2.  We only want to apply conversions inside some tags, e.g. we don't
+//      want to change the contents of <pre> tags.
+//
+//      By extracting the tags separately, we can inspect them later
+//      to see whether we're inside a tag where we don't want to do any
+//      text conversions.
+//
+// The tests at the bottom of this file give some examples of how HTML strings
+// get tokenized.
+
 use regex::Regex;
 
 #[derive(Debug)]
@@ -35,12 +58,17 @@ lazy_static! {
 /// Each token is either a tag (possibly with nested tags contained therein,
 /// such as <a href="<MTFoo>">), or a run of text between tags.
 ///
-/// Based on the _tokenize() subroutine from Brad Choate's MTRegex plugin.
-/// <http://www.bradchoate.com/past/mtregex.php>
+/// Based on the following previous implementations:
 ///
-/// Based on the _tokenize() function from Leo Hemsted's Smartypants
-/// Python library.
-/// <https://github.com/leohemsted/smartypants.py/blob/c46d26c559d706b6e0aa423190ab2d6edf1fdfcd/smartypants.py#L556-L608>
+///   * The _tokenize() function from Leo Hemsted's Smartypants Python
+///     library.
+///     https://github.com/leohemsted/smartypants.py/blob/c46d26c559d706b6e0aa423190ab2d6edf1fdfcd/smartypants.py#L556-L608
+///
+///   * The _tokenize subroutine in John Gruber's SmartyPants Perl script.
+///     https://daringfireball.net/projects/smartypants/
+///
+///   * The _tokenize subroutine from Brad Choate's MTRegex plugin.
+///     https://web.archive.org/web/20041215155739/http://bradchoate.com/weblog/2002/07/27/mtregex
 ///
 pub fn tokenize(text: &str) -> Vec<Token> {
     let mut tokens = vec!();
@@ -68,19 +96,10 @@ pub fn tokenize(text: &str) -> Vec<Token> {
         match cap.name("tag") {
             Some(tag_match) => {
                 let tag = tag_match.as_str();
-                if tag.starts_with("<!--") {
-                    // remove --[white space]> from the end of tag
-                    let tag_contents =
-                        tag
-                            .trim_start_matches("<!--")
-                            .trim_end_matches('>')
-                            .trim_end()
-                            .trim_end_matches('-');
 
-                    if tag_contents.contains("--") {
-                        tokens.push(Token::Text(cap["tag"].to_owned()));
-                        continue;
-                    }
+                if is_comment(tag) && comment_text(tag).contains("--") {
+                    tokens.push(Token::Text(cap["tag"].to_owned()));
+                    continue;
                 }
 
                 tokens.push(Token::Tag(cap["tag"].to_owned()));
@@ -90,6 +109,21 @@ pub fn tokenize(text: &str) -> Vec<Token> {
     }
 
     tokens
+}
+
+/// Returns true if `tag` is an HTML comment, false otherwise.
+fn is_comment(tag: &str) -> bool {
+    tag.starts_with("<!--")
+}
+
+/// Returns the contents of an HTML comment
+fn comment_text(comment: &str) -> &str {
+    // remove --[white space]> from the end of tag
+    comment
+        .trim_start_matches("<!--")
+        .trim_end_matches('>')
+        .trim_end()
+        .trim_end_matches('-')
 }
 
 #[cfg(test)]
