@@ -9,8 +9,8 @@ enum Token {
 impl PartialEq for Token {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Token::Tag(tagSelf), Token::Tag(tagOther))     => tagSelf == tagOther,
-            (Token::Text(textSelf), Token::Text(textOther)) => textSelf == textOther,
+            (Token::Tag(tag_self), Token::Tag(tag_other))     => tag_self == tag_other,
+            (Token::Text(text_self), Token::Text(text_other)) => text_self == text_other,
             _ => false,
         }
     }
@@ -97,19 +97,53 @@ mod tests {
     #[test]
     fn it_handles_a_simple_string() {
         let result = tokenize("This is a vanilla string");
-        assert_eq!(result, vec![Token::Text(String::from("This is a vanilla string"))]);
+        let expected = vec![Token::Text(String::from("This is a vanilla string"))];
+        assert_eq!(result, expected);
     }
 
     #[test]
     fn it_handles_a_single_tag() {
         let result = tokenize("<p>This is a paragraph</p>");
-        assert_eq!(result, vec![Token::Tag(String::from("<p>")), Token::Text(String::from("This is a paragraph")), Token::Tag(String::from("</p>"))]);
+        let expected = vec![
+            Token::Tag(String::from("<p>")),
+            Token::Text(String::from("This is a paragraph")),
+            Token::Tag(String::from("</p>")),
+        ];
+        assert_eq!(result, expected);
     }
 
     #[test]
-    fn it_doesnt_work() {
-        println!("{:?}", tokenize("This isn’t very good <a> <img> Hello I’m Lexie"));
-        println!("{:?}", tokenize("<p>"));
-        assert_eq!(2, 3);
+    fn it_treats_a_comment_as_a_tag() {
+        let result = tokenize("<!-- This is a comment -->");
+        let expected = vec![
+            Token::Tag(String::from("<!-- This is a comment -->")),
+        ];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn it_treats_a_comment_with_two_dashes_as_text() {
+        let result = tokenize("<!-- This is a comment with -- two dashes -->");
+        let expected = vec![
+            Token::Text(String::from("<!-- This is a comment with -- two dashes -->")),
+        ];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn it_handles_a_complex_example() {
+        let result = tokenize("Some text <em>with emphasis</em> and <span class=\"big\">inline attributes</span>.");
+        let expected = vec![
+            Token::Text(String::from("Some text ")),
+            Token::Tag(String::from("<em>")),
+            Token::Text(String::from("with emphasis")),
+            Token::Tag(String::from("</em>")),
+            Token::Text(String::from(" and ")),
+            Token::Tag(String::from("<span class=\"big\">")),
+            Token::Text(String::from("inline attributes")),
+            Token::Tag(String::from("</span>")),
+            Token::Text(String::from(".")),
+        ];
+        assert_eq!(result, expected);
     }
 }
