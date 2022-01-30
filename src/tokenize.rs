@@ -1,7 +1,7 @@
 use regex::Regex;
 
 #[derive(Debug)]
-enum Token {
+pub enum Token {
     Tag(String),
     Text(String),
 }
@@ -26,7 +26,6 @@ impl PartialEq for Token {
 //      that comes after the final tag as the final Capture, rather
 //      than slicing into the string
 //
-
 lazy_static! {
     static ref TAG_SOUP: Regex = Regex::new("(?P<text>[^<]*)(?P<tag><!--.*?--\\s*>|<[^>]*>)?").unwrap();
 }
@@ -43,10 +42,10 @@ lazy_static! {
 /// Python library.
 /// <https://github.com/leohemsted/smartypants.py/blob/c46d26c559d706b6e0aa423190ab2d6edf1fdfcd/smartypants.py#L556-L608>
 ///
-fn tokenize(html: &str) -> Vec<Token> {
+pub fn tokenize(text: &str) -> Vec<Token> {
     let mut tokens = vec!();
 
-    for cap in (*TAG_SOUP).captures_iter(html) {
+    for cap in (*TAG_SOUP).captures_iter(text) {
         if !cap["text"].is_empty() {
             tokens.push(Token::Text(cap["text"].to_owned()));
         }
