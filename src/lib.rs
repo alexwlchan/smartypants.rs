@@ -7,7 +7,11 @@ mod tokenize;
 
 use tokenize::Token;
 
-// https://github.com/leohemsted/smartypants.py/blob/c46d26c559d706b6e0aa423190ab2d6edf1fdfcd/smartypants.py#L556-L608
+// This is used to match tags where we don't want to do any corrections.
+//
+// This list of tags is taken from the Python implementation, adding a few
+// newer HTML tags that aren't skipped in the latest version of Markdown.pl.
+//
 lazy_static! {
     static ref TAGS_TO_SKIP_REGEX: Regex = Regex::new(
         "<(?P<closing_slash>/)?(?P<tag_name>pre|samp|code|tt|kbd|script|style|math)[^>]*>").unwrap();
