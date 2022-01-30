@@ -1,13 +1,13 @@
 #[cfg(test)]
 mod smartypants_tests {
     use crate::smartypants;
-    use crate::{Config, DashesConfig, EllipsesBehaviour, QuotesBehaviour};
+    use crate::{Config, DashesBehaviour, EllipsesBehaviour, QuotesBehaviour};
 
     #[test]
     fn it_converts_double_dash_to_en_dash() {
         let config = Config {
-            double_dash: DashesConfig::EnDash,
-            triple_dash: DashesConfig::DoNothing,
+            double_dash: DashesBehaviour::EnDash,
+            triple_dash: DashesBehaviour::DoNothing,
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
@@ -20,8 +20,8 @@ mod smartypants_tests {
     #[test]
     fn it_converts_multiple_dashes() {
         let config = Config {
-            double_dash: DashesConfig::EnDash,
-            triple_dash: DashesConfig::EmDash,
+            double_dash: DashesBehaviour::EnDash,
+            triple_dash: DashesBehaviour::EmDash,
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
@@ -34,8 +34,8 @@ mod smartypants_tests {
     #[test]
     fn it_converts_inverted_dashes() {
         let config = Config {
-            double_dash: DashesConfig::EmDash,
-            triple_dash: DashesConfig::EnDash,
+            double_dash: DashesBehaviour::EmDash,
+            triple_dash: DashesBehaviour::EnDash,
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
@@ -48,8 +48,8 @@ mod smartypants_tests {
     #[test]
     fn it_converts_ellipses() {
         let config = Config{
-            double_dash: DashesConfig::DoNothing,
-            triple_dash: DashesConfig::DoNothing,
+            double_dash: DashesBehaviour::DoNothing,
+            triple_dash: DashesBehaviour::DoNothing,
             ellipses: EllipsesBehaviour::ConvertToEntity,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
@@ -65,8 +65,8 @@ mod smartypants_tests {
     #[test]
     fn it_skips_ellipses_if_not_enabled() {
         let config = Config{
-            double_dash: DashesConfig::DoNothing,
-            triple_dash: DashesConfig::DoNothing,
+            double_dash: DashesBehaviour::DoNothing,
+            triple_dash: DashesBehaviour::DoNothing,
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
@@ -82,8 +82,8 @@ mod smartypants_tests {
     #[test]
     fn it_converts_backticks() {
         let config = Config{
-            double_dash: DashesConfig::DoNothing,
-            triple_dash: DashesConfig::DoNothing,
+            double_dash: DashesBehaviour::DoNothing,
+            triple_dash: DashesBehaviour::DoNothing,
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::ConvertToCurly,
             single_backticks: QuotesBehaviour::DoNothing,
@@ -93,8 +93,8 @@ mod smartypants_tests {
         assert_eq!(result, "&#8220;Isn't this fun?&#8221;");
 
         let config = Config{
-            double_dash: DashesConfig::DoNothing,
-            triple_dash: DashesConfig::DoNothing,
+            double_dash: DashesBehaviour::DoNothing,
+            triple_dash: DashesBehaviour::DoNothing,
             ellipses: EllipsesBehaviour::DoNothing,
             double_backticks: QuotesBehaviour::ConvertToCurly,
             single_backticks: QuotesBehaviour::ConvertToCurly,

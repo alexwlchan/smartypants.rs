@@ -1,4 +1,4 @@
-use crate::{Config, DashesConfig, QuotesBehaviour};
+use crate::{Config, DashesBehaviour, QuotesBehaviour};
 
 const SINGLE_STRAIGHT_QUOTE_ENTITY: &str = "&#39";          // '
 const DOUBLE_STRAIGHT_QUOTE_ENTITY: &str = "&#34";          // "
@@ -36,15 +36,15 @@ pub fn process_escapes(text: &str) -> String {
 /// Convert `--` and `---` in `text` into HTML entities.
 pub fn convert_dashes(text: &str, config: &Config) -> String {
     let triple_dash_replacement = match config.triple_dash {
-        DashesConfig::DoNothing => "---",
-        DashesConfig::EnDash    => EN_DASH_ENTITY,
-        DashesConfig::EmDash    => EM_DASH_ENTITY,
+        DashesBehaviour::DoNothing => "---",
+        DashesBehaviour::EnDash    => EN_DASH_ENTITY,
+        DashesBehaviour::EmDash    => EM_DASH_ENTITY,
     };
 
     let double_dash_replacement = match config.double_dash {
-        DashesConfig::DoNothing => "--",
-        DashesConfig::EnDash    => EN_DASH_ENTITY,
-        DashesConfig::EmDash    => EM_DASH_ENTITY,
+        DashesBehaviour::DoNothing => "--",
+        DashesBehaviour::EnDash    => EN_DASH_ENTITY,
+        DashesBehaviour::EmDash    => EM_DASH_ENTITY,
     };
 
     // Note: we have to do the triple dash replacement before the

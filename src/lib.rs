@@ -8,7 +8,7 @@ pub mod converters;
 mod tokenize;
 mod tests;
 
-use config::{Config, DashesConfig, EllipsesBehaviour, QuotesBehaviour};
+use config::{Config, DashesBehaviour, EllipsesBehaviour, QuotesBehaviour};
 use tokenize::Token;
 
 // This is used to match tags where we don't want to do any corrections.

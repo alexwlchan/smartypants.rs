@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum DashesConfig {
+pub enum DashesBehaviour {
     /// Leave dashes as-is
     DoNothing,
 
@@ -30,10 +30,10 @@ pub enum QuotesBehaviour {
 
 pub struct Config {
     /// How to convert double dashes (`--`)
-    pub double_dash: DashesConfig,
+    pub double_dash: DashesBehaviour,
 
     /// How to convert triple dashes (`---`)
-    pub triple_dash: DashesConfig,
+    pub triple_dash: DashesBehaviour,
 
     /// Whether to convert ellipses (`...`) into ellipsis HTML entities
     pub ellipses: EllipsesBehaviour,
