@@ -6,6 +6,7 @@ use regex::Regex;
 pub mod config;
 pub mod converters;
 mod tokenize;
+mod tests;
 
 use config::{Config, DashesConfig};
 use tokenize::Token;
@@ -81,6 +82,16 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
         println!("need to do processing on {:?}", text);
         let text = converters::process_escapes(&text);
         let text = converters::convert_dashes(&text, config);
+
+        println!("@@AWLC text = {}", text);
+
+        let text = if config.ellipses {
+            converters::convert_ellipses(&text)
+        } else {
+            text
+        };
+        println!("@@AWLC text = {}", text);
+
         text
     };
 
@@ -111,48 +122,5 @@ pub fn smartypants(text: &str, config: &Config) -> String {
         }
     }
 
-    text.to_owned()
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::smartypants;
-    use crate::{Config, DashesConfig};
-
-    #[test]
-    fn it_handles_a_simple_string() {
-        let config = Config {
-            doubleDash: DashesConfig::EnDash,
-            tripleDash: DashesConfig::EmDash,
-        };
-
-        let result = smartypants("This is a simple string", &config);
-        let expected = "This is a simple string";
-        assert_eq!(result, expected.to_owned());
-    }
-
-    #[test]
-    fn it_handles_another_simple_string() {
-        let config = Config {
-            doubleDash: DashesConfig::EnDash,
-            tripleDash: DashesConfig::EmDash,
-        };
-
-        let result = smartypants("<p>He said Hello</p>", &config);
-        let expected = "<p>He said Hello</p>";
-        assert_eq!(1, 0);
-    }
-
-    #[test]
-    fn it_skips_tags_even_if_they_have_quotes() {
-        let config = Config {
-            doubleDash: DashesConfig::EnDash,
-            tripleDash: DashesConfig::EmDash,
-        };
-
-        let result = smartypants("<pre>This isn't text</pre>", &config);
-        let expected = "<pre>This isn't text</pre>";
-        assert_eq!(result, expected.to_owned());
-        assert_eq!(1, 0);
-    }
+    result.join("")
 }

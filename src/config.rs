@@ -12,8 +12,11 @@ pub enum DashesConfig {
 
 pub struct Config {
     /// How to convert double dashes (`--`)
-    pub doubleDash: DashesConfig,
+    pub double_dash: DashesConfig,
 
     /// How to convert triple dashes (`---`)
-    pub tripleDash: DashesConfig,
+    pub triple_dash: DashesConfig,
+
+    /// Whether to convert ellipses (`...`) into ellipsis HTML entities
+    pub ellipses: bool,
 }

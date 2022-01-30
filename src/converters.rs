@@ -21,20 +21,6 @@ use crate::{Config, DashesConfig};
 /// | ``\``` | ``&#96;`` | ``\```    |
 /// +--------+-----------+-----------+
 ///
-/// # Examples
-///
-/// ```
-/// # use smartypants::converters::process_escapes;
-/// let result = process_escapes(r"\\");
-/// // "&#92;"
-/// # assert_eq!(result, String::from("&#92;"));
-///
-/// # use smartypants::smartypants;
-/// let result = smartypants("\"smarty\" \\\"pants\\\"");
-/// // "&#8220;smarty&#8221; &#34;pants&#34;"
-/// # assert_eq!(result, String::from("&#8220;smarty&#8221; &#34;pants&#34;"));
-/// ```
-///
 pub fn process_escapes(text: &str) -> String {
     text
         .replace(r"\\", "&#92;")
@@ -45,23 +31,28 @@ pub fn process_escapes(text: &str) -> String {
         .replace(r"\`", "&#96;")
 }
 
-/// Convert `--` and `---` into HTML entities.
+/// Convert `--` and `---` in `text` into HTML entities.
 pub fn convert_dashes(text: &str, config: &Config) -> String {
-    let enDash = "&#8211;";
-    let emDash = "&#8212;";
+    let en_dash = "&#8211;";
+    let em_dash = "&#8212;";
 
-    let triple_dash_replacement = match config.tripleDash {
+    let triple_dash_replacement = match config.triple_dash {
         DashesConfig::DoNothing => "---",
-        DashesConfig::EnDash    => enDash,
-        DashesConfig::EmDash    => emDash,
+        DashesConfig::EnDash    => en_dash,
+        DashesConfig::EmDash    => em_dash,
     };
 
-    let double_dash_replacement = match config.doubleDash {
+    let double_dash_replacement = match config.double_dash {
         DashesConfig::DoNothing => "--",
-        DashesConfig::EnDash    => enDash,
-        DashesConfig::EmDash    => emDash,
+        DashesConfig::EnDash    => en_dash,
+        DashesConfig::EmDash    => em_dash,
     };
 
+    println!("@@AWLC double_dash_replacement = {}", double_dash_replacement);
+
+    println!("@@AWLC out = {}", text
+        .replace("---", triple_dash_replacement)
+        .replace("--", double_dash_replacement));
 
     // Note: we have to do the triple dash replacement before the
     // double dash replacement, otherwise we'll get weird results.
@@ -71,4 +62,11 @@ pub fn convert_dashes(text: &str, config: &Config) -> String {
     text
         .replace("---", triple_dash_replacement)
         .replace("--", double_dash_replacement)
+}
+
+/// Converts `...` in `text` into ellipsis HTML entities.
+pub fn convert_ellipses(text: &str) -> String {
+    text
+        .replace("...", "&#8230;")
+        .replace(". . .", "&#8230;")
 }
