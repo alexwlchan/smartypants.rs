@@ -53,15 +53,78 @@ pub struct SubstitutionConfig {
     /// Whether to convert ellipses (`...`) into ellipsis HTML entities
     pub ellipses: EllipsesSubstitution,
 
-    /// Whether to convert double backticks (```backticks''`) to curly quotes
-    pub double_backticks: QuotesSubstitution,
-
-    /// Whether to convert single backticks (``single'`) to curly quotes
-    pub single_backticks: QuotesSubstitution,
+    /// Whether to convert backticks (```backticks''`) to curly quotes
+    pub backticks: QuotesSubstitution,
 
     /// Whether to convert normal quotes (`"` and `'`) to curly quotes
     pub quote_chars: QuotesSubstitution,
 
     /// What to convert
     pub entities: EntitiesSubstitution,
+}
+
+impl Default for SubstitutionConfig {
+    fn default() -> Self {
+        SubstitutionConfig {
+            double_dash: DashesSubstitution::EnDash,
+            triple_dash: DashesSubstitution::EmDash,
+            ellipses: EllipsesSubstitution::ConvertToEntity,
+            backticks: QuotesSubstitution::ConvertToCurly,
+            quote_chars: QuotesSubstitution::ConvertToCurly,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
+        }
+    }
+}
+
+trait SubstitutionConfigHelpers {
+    fn with_double_dash(self, substitution: DashesSubstitution) -> Self;
+    fn with_triple_dash(self, substitution: DashesSubstitution) -> Self;
+    fn with_ellipses(self, substitution: EllipsesSubstitution) -> Self;
+    fn with_backticks(self, substitution: QuotesSubstitution) -> Self;
+    fn with_quote_chars(self, substitution: QuotesSubstitution) -> Self;
+    fn with_entities(self, substitution: EntitiesSubstitution) -> Self;
+}
+
+impl SubstitutionConfigHelpers for SubstitutionConfig {
+    fn with_double_dash(self, substitution: DashesSubstitution) -> Self {
+        SubstitutionConfig {
+            double_dash: substitution,
+            ..self
+        }
+    }
+
+    fn with_triple_dash(self, substitution: DashesSubstitution) -> Self {
+        SubstitutionConfig {
+            triple_dash: substitution,
+            ..self
+        }
+    }
+
+    fn with_ellipses(self, substitution: EllipsesSubstitution) -> Self {
+        SubstitutionConfig {
+            ellipses: substitution,
+            ..self
+        }
+    }
+
+    fn with_backticks(self, substitution: QuotesSubstitution) -> Self {
+        SubstitutionConfig {
+            backticks: substitution,
+            ..self
+        }
+    }
+
+    fn with_quote_chars(self, substitution: QuotesSubstitution) -> Self {
+        SubstitutionConfig {
+            quote_chars: substitution,
+            ..self
+        }
+    }
+
+    fn with_entities(self, substitution: EntitiesSubstitution) -> Self {
+        SubstitutionConfig {
+            entities: substitution,
+            ..self
+        }
+    }
 }

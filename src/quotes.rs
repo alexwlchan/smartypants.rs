@@ -137,10 +137,10 @@ pub fn handle_closing_single_quotes(text: &str) -> String {
         // This is a special case to handle something like
         // "<i>Custer</i>'s Last Stand.".
         static ref CLOSING_SINGLE_QUOTE_RE_1: Regex =
-            Regex::new(&format!(r#"(?P<close_class>{})'(?!\s | s\b | \d)"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
+            Regex::new(&format!(r#"(?P<close_class>{})'(?!\s | s\b | \d)"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
 
         static ref CLOSING_SINGLE_QUOTE_RE_2: Regex =
-            Regex::new(&format!(r#"(?P<close_class>{})'(?P<word>\s | s\b)"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
+            Regex::new(&format!(r#"(?P<close_class>{})'(?P<word>\s | s\b)"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
     }
 
     let text = (*CLOSING_SINGLE_QUOTE_RE_1).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
