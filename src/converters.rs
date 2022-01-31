@@ -1,6 +1,6 @@
 use regex::Regex;
 
-use crate::{Config, DashesBehaviour, QuotesBehaviour};
+use crate::{Config, DashesBehaviour, EntitiesBehaviour, QuotesBehaviour};
 use crate::entities::*;
 use crate::quotes;
 
@@ -45,8 +45,8 @@ pub fn convert_dashes(text: &str, config: &Config) -> String {
 /// Converts `...` in `text` into ellipsis HTML entities.
 pub fn convert_ellipses(text: &str) -> String {
     text
-        .replace("...", "&#8230;")
-        .replace(". . .", "&#8230;")
+        .replace("...", ELLIPSIS_ENTITY)
+        .replace(". . .", ELLIPSIS_ENTITY)
 }
 
 /// Converts ```double backticks''`-style quotes in `text` into HTML curly quote entities.
@@ -87,4 +87,41 @@ pub fn convert_quotes(text: &str, prev_token_last_char: &Option<char>) -> String
     }
 }
 
-// https://github.com/leohemsted/smartypants.py/blob/c46d26c559d706b6e0aa423190ab2d6edf1fdfcd/smartypants.py#L323-L339
+/// Converts numeric character references to other entities, if desired.
+///
+/// It would be more efficient to plumb the EntitiesBehaviour into all
+/// the converter functions and substitute the correct choice of entity
+/// when we initially add it, but that diverges from the original design
+/// of SmartyPants much more substantially.
+pub fn convert_entities(text: &str, entities_behaviour: &EntitiesBehaviour) -> String {
+    match entities_behaviour {
+        EntitiesBehaviour::UnicodeCharacters =>
+            text
+                .replace(EN_DASH_ENTITY, "–")
+                .replace(EM_DASH_ENTITY, "—")
+                .replace(OPENING_SINGLE_CURLY_QUOTE_ENTITY, "‘")
+                .replace(CLOSING_SINGLE_CURLY_QUOTE_ENTITY, "’")
+                .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "“")
+                .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "”"),
+
+        EntitiesBehaviour::HtmlNumericEntities => text.to_string(),
+
+        EntitiesBehaviour::HtmlNamedEntities =>
+            text
+                .replace(EN_DASH_ENTITY, "&ndash;")
+                .replace(EM_DASH_ENTITY, "&mdash;")
+                .replace(OPENING_SINGLE_CURLY_QUOTE_ENTITY, "&lsquo;")
+                .replace(CLOSING_SINGLE_CURLY_QUOTE_ENTITY, "&rsquo;")
+                .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "&ldquo;")
+                .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "&rdquo;"),
+
+        EntitiesBehaviour::AsciiEquivalents =>
+            text
+                .replace(EN_DASH_ENTITY, "-")
+                .replace(EM_DASH_ENTITY, "--")
+                .replace(OPENING_SINGLE_CURLY_QUOTE_ENTITY, "'")
+                .replace(CLOSING_SINGLE_CURLY_QUOTE_ENTITY, "'")
+                .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "\"")
+                .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "\""),
+    }
+}

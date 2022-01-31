@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod smartypants_tests {
     use crate::smartypants;
-    use crate::{Config, DashesBehaviour, EllipsesBehaviour, QuotesBehaviour};
+    use crate::{Config, DashesBehaviour, EllipsesBehaviour, EntitiesBehaviour, QuotesBehaviour};
 
     #[test]
     fn it_converts_double_dash_to_en_dash() {
@@ -12,6 +12,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("Nothing endures but change. -- Heraclitus", &config);
@@ -27,6 +28,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("Life itself is the proper binge. --- Julia Child (1912--2004)", &config);
@@ -42,6 +44,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("Dare to be naïve. -- Buckminster Fuller (1895---1983)", &config);
@@ -57,6 +60,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -75,6 +79,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::DoNothing,
             single_backticks: QuotesBehaviour::DoNothing,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -93,6 +98,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::ConvertToCurly,
             single_backticks: QuotesBehaviour::DoNothing,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("``Isn't this fun?''", &config);
@@ -105,6 +111,7 @@ mod smartypants_tests {
             double_backticks: QuotesBehaviour::ConvertToCurly,
             single_backticks: QuotesBehaviour::ConvertToCurly,
             quote_chars: QuotesBehaviour::DoNothing,
+            entities: EntitiesBehaviour::HtmlNumericEntities,
         };
 
         let result = smartypants("``Isn't this fun?''", &config);

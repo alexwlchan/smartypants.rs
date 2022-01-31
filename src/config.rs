@@ -28,6 +28,21 @@ pub enum QuotesBehaviour {
     ConvertToCurly,
 }
 
+#[derive(Debug)]
+pub enum EntitiesBehaviour {
+    /// Use Unicode characters (e.g. He said “Hello world”)
+    UnicodeCharacters,
+
+    /// Use HTML numeric entities (e.g. She said &#8220;Hello world&#8221;)
+    HtmlNumericEntities,
+
+    /// Use HTML named entities (e.g. They said &ldquo;Hello world&rdquo;)
+    HtmlNamedEntities,
+
+    /// Use ASCII equivalents (e.g. Xe said "Hello world")
+    AsciiEquivalents,
+}
+
 pub struct Config {
     /// Whether to convert double dashes (`--`) to en/em dashes
     pub double_dash: DashesBehaviour,
@@ -46,4 +61,7 @@ pub struct Config {
 
     /// Whether to convert normal quotes (`"` and `'`) to curly quotes
     pub quote_chars: QuotesBehaviour,
+
+    /// What to convert
+    pub entities: EntitiesBehaviour,
 }

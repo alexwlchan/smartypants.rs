@@ -18,6 +18,8 @@ pub const BACKTICK_ENTITY: &str = "&#96;";                      // `
 pub const EN_DASH_ENTITY: &str = "&#8211;";                     // –
 pub const EM_DASH_ENTITY: &str = "&#8212;";                     // —
 
+pub const ELLIPSIS_ENTITY: &str = "&#8230;";                    // …
+
 pub const EN_DASH_HEX_ENTITY: &str = "&#x2013;";                // –
 pub const EM_DASH_HEX_ENTITY: &str = "&#x2014;";                // —
 

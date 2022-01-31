@@ -10,7 +10,7 @@ mod quotes;
 mod tokenize;
 mod tests;
 
-use config::{Config, DashesBehaviour, EllipsesBehaviour, QuotesBehaviour};
+use config::{Config, DashesBehaviour, EllipsesBehaviour, EntitiesBehaviour, QuotesBehaviour};
 use tokenize::Token;
 
 fn handle_tag_token(contents: String, result: &mut Vec<String>, skipped_tag_stack: &mut Vec<String>) -> () {
@@ -105,6 +105,8 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
             QuotesBehaviour::ConvertToCurly => converters::convert_quotes(&text, &prev_token_last_char),
             QuotesBehaviour::DoNothing      => text,
         };
+
+        let text = converters::convert_entities(&text, &config.entities);
 
         text
     };
