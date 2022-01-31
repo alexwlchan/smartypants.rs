@@ -1,18 +1,18 @@
 #[cfg(test)]
 mod smartypants_tests {
     use crate::smartypants;
-    use crate::{Config, DashesBehaviour, EllipsesBehaviour, EntitiesBehaviour, QuotesBehaviour};
+    use crate::{SubstitutionConfig, DashesSubstitution, EllipsesSubstitution, EntitiesSubstitution, QuotesSubstitution};
 
     #[test]
     fn it_converts_double_dash_to_en_dash() {
-        let config = Config {
-            double_dash: DashesBehaviour::EnDash,
-            triple_dash: DashesBehaviour::DoNothing,
-            ellipses: EllipsesBehaviour::DoNothing,
-            double_backticks: QuotesBehaviour::DoNothing,
-            single_backticks: QuotesBehaviour::DoNothing,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::EnDash,
+            triple_dash: DashesSubstitution::DoNothing,
+            ellipses: EllipsesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::DoNothing,
+            single_backticks: QuotesSubstitution::DoNothing,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("Nothing endures but change. -- Heraclitus", &config);
@@ -21,14 +21,14 @@ mod smartypants_tests {
 
     #[test]
     fn it_converts_multiple_dashes() {
-        let config = Config {
-            double_dash: DashesBehaviour::EnDash,
-            triple_dash: DashesBehaviour::EmDash,
-            ellipses: EllipsesBehaviour::DoNothing,
-            double_backticks: QuotesBehaviour::DoNothing,
-            single_backticks: QuotesBehaviour::DoNothing,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::EnDash,
+            triple_dash: DashesSubstitution::EmDash,
+            ellipses: EllipsesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::DoNothing,
+            single_backticks: QuotesSubstitution::DoNothing,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("Life itself is the proper binge. --- Julia Child (1912--2004)", &config);
@@ -37,14 +37,14 @@ mod smartypants_tests {
 
     #[test]
     fn it_converts_inverted_dashes() {
-        let config = Config {
-            double_dash: DashesBehaviour::EmDash,
-            triple_dash: DashesBehaviour::EnDash,
-            ellipses: EllipsesBehaviour::DoNothing,
-            double_backticks: QuotesBehaviour::DoNothing,
-            single_backticks: QuotesBehaviour::DoNothing,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::EmDash,
+            triple_dash: DashesSubstitution::EnDash,
+            ellipses: EllipsesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::DoNothing,
+            single_backticks: QuotesSubstitution::DoNothing,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("Dare to be naïve. -- Buckminster Fuller (1895---1983)", &config);
@@ -53,14 +53,14 @@ mod smartypants_tests {
 
     #[test]
     fn it_converts_ellipses() {
-        let config = Config{
-            double_dash: DashesBehaviour::DoNothing,
-            triple_dash: DashesBehaviour::DoNothing,
-            ellipses: EllipsesBehaviour::ConvertToEntity,
-            double_backticks: QuotesBehaviour::DoNothing,
-            single_backticks: QuotesBehaviour::DoNothing,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::DoNothing,
+            triple_dash: DashesSubstitution::DoNothing,
+            ellipses: EllipsesSubstitution::ConvertToEntity,
+            double_backticks: QuotesSubstitution::DoNothing,
+            single_backticks: QuotesSubstitution::DoNothing,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -72,14 +72,14 @@ mod smartypants_tests {
 
     #[test]
     fn it_skips_ellipses_if_not_enabled() {
-        let config = Config{
-            double_dash: DashesBehaviour::DoNothing,
-            triple_dash: DashesBehaviour::DoNothing,
-            ellipses: EllipsesBehaviour::DoNothing,
-            double_backticks: QuotesBehaviour::DoNothing,
-            single_backticks: QuotesBehaviour::DoNothing,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::DoNothing,
+            triple_dash: DashesSubstitution::DoNothing,
+            ellipses: EllipsesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::DoNothing,
+            single_backticks: QuotesSubstitution::DoNothing,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("Huh...?", &config);
@@ -91,27 +91,27 @@ mod smartypants_tests {
 
     #[test]
     fn it_converts_backticks() {
-        let config = Config{
-            double_dash: DashesBehaviour::DoNothing,
-            triple_dash: DashesBehaviour::DoNothing,
-            ellipses: EllipsesBehaviour::DoNothing,
-            double_backticks: QuotesBehaviour::ConvertToCurly,
-            single_backticks: QuotesBehaviour::DoNothing,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::DoNothing,
+            triple_dash: DashesSubstitution::DoNothing,
+            ellipses: EllipsesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::ConvertToCurly,
+            single_backticks: QuotesSubstitution::DoNothing,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("``Isn't this fun?''", &config);
         assert_eq!(result, "&#8220;Isn't this fun?&#8221;");
 
-        let config = Config{
-            double_dash: DashesBehaviour::DoNothing,
-            triple_dash: DashesBehaviour::DoNothing,
-            ellipses: EllipsesBehaviour::DoNothing,
-            double_backticks: QuotesBehaviour::ConvertToCurly,
-            single_backticks: QuotesBehaviour::ConvertToCurly,
-            quote_chars: QuotesBehaviour::DoNothing,
-            entities: EntitiesBehaviour::HtmlNumericEntities,
+        let config = SubstitutionConfig {
+            double_dash: DashesSubstitution::DoNothing,
+            triple_dash: DashesSubstitution::DoNothing,
+            ellipses: EllipsesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::ConvertToCurly,
+            single_backticks: QuotesSubstitution::ConvertToCurly,
+            quote_chars: QuotesSubstitution::DoNothing,
+            entities: EntitiesSubstitution::HtmlNumericEntities,
         };
 
         let result = smartypants("``Isn't this fun?''", &config);

@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum DashesBehaviour {
+pub enum DashesSubstitution {
     /// Leave dashes as-is
     DoNothing,
 
@@ -11,7 +11,7 @@ pub enum DashesBehaviour {
 }
 
 #[derive(Debug)]
-pub enum EllipsesBehaviour {
+pub enum EllipsesSubstitution {
     /// Leave ellipses as-is
     DoNothing,
 
@@ -20,7 +20,7 @@ pub enum EllipsesBehaviour {
 }
 
 #[derive(Debug)]
-pub enum QuotesBehaviour {
+pub enum QuotesSubstitution {
     /// Leave quotes/backticks as-is
     DoNothing,
 
@@ -29,7 +29,7 @@ pub enum QuotesBehaviour {
 }
 
 #[derive(Debug)]
-pub enum EntitiesBehaviour {
+pub enum EntitiesSubstitution {
     /// Use Unicode characters (e.g. He said “Hello world”)
     UnicodeCharacters,
 
@@ -43,25 +43,25 @@ pub enum EntitiesBehaviour {
     AsciiEquivalents,
 }
 
-pub struct Config {
+pub struct SubstitutionConfig {
     /// Whether to convert double dashes (`--`) to en/em dashes
-    pub double_dash: DashesBehaviour,
+    pub double_dash: DashesSubstitution,
 
     /// Whether to convert triple dashes (`---`) to en/em dashes
-    pub triple_dash: DashesBehaviour,
+    pub triple_dash: DashesSubstitution,
 
     /// Whether to convert ellipses (`...`) into ellipsis HTML entities
-    pub ellipses: EllipsesBehaviour,
+    pub ellipses: EllipsesSubstitution,
 
     /// Whether to convert double backticks (```backticks''`) to curly quotes
-    pub double_backticks: QuotesBehaviour,
+    pub double_backticks: QuotesSubstitution,
 
     /// Whether to convert single backticks (``single'`) to curly quotes
-    pub single_backticks: QuotesBehaviour,
+    pub single_backticks: QuotesSubstitution,
 
     /// Whether to convert normal quotes (`"` and `'`) to curly quotes
-    pub quote_chars: QuotesBehaviour,
+    pub quote_chars: QuotesSubstitution,
 
     /// What to convert
-    pub entities: EntitiesBehaviour,
+    pub entities: EntitiesSubstitution,
 }

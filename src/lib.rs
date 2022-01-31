@@ -12,7 +12,7 @@ mod quotes;
 mod tokenize;
 mod tests;
 
-use config::{Config, DashesBehaviour, EllipsesBehaviour, EntitiesBehaviour, QuotesBehaviour};
+use config::{SubstitutionConfig, DashesSubstitution, EllipsesSubstitution, EntitiesSubstitution, QuotesSubstitution};
 use tokenize::Token;
 
 fn handle_tag_token(contents: String, result: &mut Vec<String>, skipped_tag_stack: &mut Vec<String>) -> () {
@@ -73,7 +73,7 @@ fn handle_tag_token(contents: String, result: &mut Vec<String>, skipped_tag_stac
     }
 }
 
-fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut Option<char>, result: &mut Vec<String>, in_skipped_tag: bool) -> () {
+fn handle_text_token(text: String, config: &SubstitutionConfig, prev_token_last_char: &mut Option<char>, result: &mut Vec<String>, in_skipped_tag: bool) -> () {
 
     // Remember the last character of this token before processing.
     //
@@ -87,25 +87,25 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
         let text = converters::convert_dashes(&text, config);
 
         let text = match config.ellipses {
-            EllipsesBehaviour::ConvertToEntity => converters::convert_ellipses(&text),
-            EllipsesBehaviour::DoNothing       => text,
+            EllipsesSubstitution::ConvertToEntity => converters::convert_ellipses(&text),
+            EllipsesSubstitution::DoNothing       => text,
         };
 
         // Note: backticks need to be processed before quotes, and double
         // backticks need to be processed before single backticks.
         let text = match config.double_backticks {
-            QuotesBehaviour::ConvertToCurly => converters::convert_double_backticks(&text),
-            QuotesBehaviour::DoNothing      => text,
+            QuotesSubstitution::ConvertToCurly => converters::convert_double_backticks(&text),
+            QuotesSubstitution::DoNothing      => text,
         };
 
         let text = match config.single_backticks {
-            QuotesBehaviour::ConvertToCurly => converters::convert_single_backticks(&text),
-            QuotesBehaviour::DoNothing      => text,
+            QuotesSubstitution::ConvertToCurly => converters::convert_single_backticks(&text),
+            QuotesSubstitution::DoNothing      => text,
         };
 
         let text = match config.quote_chars {
-            QuotesBehaviour::ConvertToCurly => converters::convert_quotes(&text, &prev_token_last_char),
-            QuotesBehaviour::DoNothing      => text,
+            QuotesSubstitution::ConvertToCurly => converters::convert_quotes(&text, &prev_token_last_char),
+            QuotesSubstitution::DoNothing      => text,
         };
 
         let text = converters::convert_entities(&text, &config.entities);
@@ -117,7 +117,7 @@ fn handle_text_token(text: String, config: &Config, prev_token_last_char: &mut O
     result.push(processed_text);
 }
 
-pub fn smartypants(text: &str, config: &Config) -> String {
+pub fn smartypants(text: &str, config: &SubstitutionConfig) -> String {
     let mut result: Vec<String> = vec![];
 
     // Records whether we're in any skipped tags where we don't

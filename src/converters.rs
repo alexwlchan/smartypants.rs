@@ -1,4 +1,4 @@
-use crate::{Config, DashesBehaviour, EntitiesBehaviour};
+use crate::{SubstitutionConfig, DashesSubstitution, EntitiesSubstitution};
 use crate::entities::*;
 use crate::quotes;
 
@@ -17,17 +17,17 @@ pub fn process_escapes(text: &str) -> String {
 }
 
 /// Convert `--` and `---` in `text` into HTML entities.
-pub fn convert_dashes(text: &str, config: &Config) -> String {
+pub fn convert_dashes(text: &str, config: &SubstitutionConfig) -> String {
     let triple_dash_replacement = match config.triple_dash {
-        DashesBehaviour::DoNothing => "---",
-        DashesBehaviour::EnDash    => EN_DASH_ENTITY,
-        DashesBehaviour::EmDash    => EM_DASH_ENTITY,
+        DashesSubstitution::DoNothing => "---",
+        DashesSubstitution::EnDash    => EN_DASH_ENTITY,
+        DashesSubstitution::EmDash    => EM_DASH_ENTITY,
     };
 
     let double_dash_replacement = match config.double_dash {
-        DashesBehaviour::DoNothing => "--",
-        DashesBehaviour::EnDash    => EN_DASH_ENTITY,
-        DashesBehaviour::EmDash    => EM_DASH_ENTITY,
+        DashesSubstitution::DoNothing => "--",
+        DashesSubstitution::EnDash    => EN_DASH_ENTITY,
+        DashesSubstitution::EmDash    => EM_DASH_ENTITY,
     };
 
     // Note: we have to do the triple dash replacement before the
@@ -87,13 +87,13 @@ pub fn convert_quotes(text: &str, prev_token_last_char: &Option<char>) -> String
 
 /// Converts numeric character references to other entities, if desired.
 ///
-/// It would be more efficient to plumb the EntitiesBehaviour into all
+/// It would be more efficient to plumb the EntitiesSubstitution into all
 /// the converter functions and substitute the correct choice of entity
 /// when we initially add it, but that diverges from the original design
 /// of SmartyPants much more substantially.
-pub fn convert_entities(text: &str, entities_behaviour: &EntitiesBehaviour) -> String {
-    match entities_behaviour {
-        EntitiesBehaviour::UnicodeCharacters =>
+pub fn convert_entities(text: &str, entities_substitution: &EntitiesSubstitution) -> String {
+    match entities_substitution {
+        EntitiesSubstitution::UnicodeCharacters =>
             text
                 .replace(EN_DASH_ENTITY, "–")
                 .replace(EM_DASH_ENTITY, "—")
@@ -102,9 +102,9 @@ pub fn convert_entities(text: &str, entities_behaviour: &EntitiesBehaviour) -> S
                 .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "“")
                 .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "”"),
 
-        EntitiesBehaviour::HtmlNumericEntities => text.to_string(),
+        EntitiesSubstitution::HtmlNumericEntities => text.to_string(),
 
-        EntitiesBehaviour::HtmlNamedEntities =>
+        EntitiesSubstitution::HtmlNamedEntities =>
             text
                 .replace(EN_DASH_ENTITY, "&ndash;")
                 .replace(EM_DASH_ENTITY, "&mdash;")
@@ -113,7 +113,7 @@ pub fn convert_entities(text: &str, entities_behaviour: &EntitiesBehaviour) -> S
                 .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "&ldquo;")
                 .replace(OPENING_DOUBLE_CURLY_QUOTE_ENTITY, "&rdquo;"),
 
-        EntitiesBehaviour::AsciiEquivalents =>
+        EntitiesSubstitution::AsciiEquivalents =>
             text
                 .replace(EN_DASH_ENTITY, "-")
                 .replace(EM_DASH_ENTITY, "--")
