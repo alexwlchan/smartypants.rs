@@ -1,6 +1,4 @@
-use regex::Regex;
-
-use crate::{Config, DashesBehaviour, EntitiesBehaviour, QuotesBehaviour};
+use crate::{Config, DashesBehaviour, EntitiesBehaviour};
 use crate::entities::*;
 use crate::quotes;
 

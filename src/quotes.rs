@@ -214,8 +214,8 @@ pub fn handle_remaining_double_quotes(text: &str) -> String {
 }
 
 /// Returns true if `c` is whitespace, false otherwise
-fn is_whitespace(maybeChar: &Option<char>) -> bool {
-    match maybeChar {
+fn is_whitespace(maybe_char: &Option<char>) -> bool {
+    match maybe_char {
         Some(c) => Regex::new(r"\s").unwrap().is_match(&c.to_string()),
         _       => false,
     }
