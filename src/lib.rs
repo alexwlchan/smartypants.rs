@@ -5,6 +5,8 @@ use regex::Regex;
 
 pub mod config;
 pub mod converters;
+mod entities;
+mod quotes;
 mod tokenize;
 mod tests;
 
