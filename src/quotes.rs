@@ -6,6 +6,7 @@
 // file relatively simple.
 
 use regex::Regex;
+use fancy_regex::{Regex as FancyRegex};
 
 use crate::entities::*;
 
@@ -45,19 +46,16 @@ pub fn handle_leading_quote_with_punctuation(text: &str) -> String {
 
     // Note: in the Perl and Python implementations of SmartyPants,
     // these regexes use a lookahead assertion, i.e. `(?=...)`.
-    //
-    // Lookahead assertions aren't supported in the Regex Rust crate,
-    // so instead we capture the punctuation and include it in the replacement.
     lazy_static! {
-        static ref FIRST_SINGLE_QUOTE_RE: Regex =
-            Regex::new(r#"^'(?P<punctuation>[[:punct]]]\B)"#).unwrap();
+        static ref FIRST_SINGLE_QUOTE_RE: FancyRegex =
+            FancyRegex::new(r#"^'(?=[[:punct:]]]\B)"#).unwrap();
 
-        static ref FIRST_DOUBLE_QUOTE_RE: Regex =
-            Regex::new(r#"^"(?P<punctuation>[[[:punct]]]\B)"#).unwrap();
+        static ref FIRST_DOUBLE_QUOTE_RE: FancyRegex =
+            FancyRegex::new(r#"^"(?=[[[:punct:]]]\B)"#).unwrap();
     }
 
-    let text = (*FIRST_SINGLE_QUOTE_RE).replace(&text, format!("{}$punctuation", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
-    let text = (*FIRST_DOUBLE_QUOTE_RE).replace(&text, format!("{}$punctuation", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY));
+    let text = (*FIRST_SINGLE_QUOTE_RE).replace(&text, CLOSING_SINGLE_CURLY_QUOTE_ENTITY);
+    let text = (*FIRST_DOUBLE_QUOTE_RE).replace(&text, CLOSING_DOUBLE_CURLY_QUOTE_ENTITY);
 
     text.to_string()
 }
@@ -71,15 +69,21 @@ pub fn handle_double_sets_of_quotes(text: &str) -> String {
     // Note: as above, the regex in the Perl/Python implementations uses
     // lookahead assertions, but we can't use them in Rust.
     lazy_static! {
-        static ref DOUBLE_THEN_SINGLE_QUOTE: Regex =
-            Regex::new(r#""'(?P<word>[[:word:]])"#).unwrap();
+        static ref DOUBLE_THEN_SINGLE_QUOTE: FancyRegex =
+            FancyRegex::new(r#""'(?=[[:word:]])"#).unwrap();
 
-        static ref SINGLE_THEN_DOUBLE_QUOTE: Regex =
-            Regex::new(r#"'"(?P<word>[[:word:]])"#).unwrap();
+        static ref SINGLE_THEN_DOUBLE_QUOTE: FancyRegex =
+            FancyRegex::new(r#"'"(?=[[:word:]])"#).unwrap();
     }
 
-    let text = (*DOUBLE_THEN_SINGLE_QUOTE).replace(&text, format!("{}{}$word", OPENING_DOUBLE_CURLY_QUOTE_ENTITY, OPENING_SINGLE_CURLY_QUOTE_ENTITY));
-    let text = (*SINGLE_THEN_DOUBLE_QUOTE).replace(&text, format!("{}{}$word", OPENING_SINGLE_CURLY_QUOTE_ENTITY, OPENING_DOUBLE_CURLY_QUOTE_ENTITY));
+    let text = (*DOUBLE_THEN_SINGLE_QUOTE).replace(
+        &text,
+        format!("{}{}", OPENING_DOUBLE_CURLY_QUOTE_ENTITY, OPENING_SINGLE_CURLY_QUOTE_ENTITY)
+    );
+    let text = (*SINGLE_THEN_DOUBLE_QUOTE).replace(
+        &text,
+        format!("{}{}", OPENING_SINGLE_CURLY_QUOTE_ENTITY, OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
+    );
 
     text.to_string()
 }
@@ -87,8 +91,8 @@ pub fn handle_double_sets_of_quotes(text: &str) -> String {
 /// Handle decade abbreviations, e.g. "the '80s"
 pub fn handle_decade_abbreviations(text: &str) -> String {
     lazy_static! {
-        static ref DECADE_RE: Regex =
-            Regex::new(r#"\b'(?P<decade>\d{2}s)"#).unwrap();
+        static ref DECADE_RE: FancyRegex =
+            FancyRegex::new(r#"\b'(?=\d{2}s)"#).unwrap();
     }
 
     let text = (*DECADE_RE).replace(&text, format!("{}$decade", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
@@ -98,8 +102,6 @@ pub fn handle_decade_abbreviations(text: &str) -> String {
 
 pub fn handle_opening_single_quotes(text: &str) -> String {
 
-    // Note: as above, the regex in the Perl/Python implementations uses
-    // lookahead assertions, but we can't use them in Rust.
     lazy_static! {
 
         // [[:space:]]  a whitespace char, or
@@ -113,9 +115,9 @@ pub fn handle_opening_single_quotes(text: &str) -> String {
         //
         // [[:word:]]   followed by a word character\
         //
-        static ref OPENING_SINGLE_QUOTE_RE: Regex =
-            Regex::new(&format!(
-                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{};)'(?P<word>[[:word:]])"#,
+        static ref OPENING_SINGLE_QUOTE_RE: FancyRegex =
+            FancyRegex::new(&format!(
+                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{};)'(?=[[:word:]])"#,
                 EN_DASH_ENTITY,
                 EM_DASH_ENTITY,
                 EN_DASH_HEX_ENTITY,
@@ -123,7 +125,7 @@ pub fn handle_opening_single_quotes(text: &str) -> String {
             )).unwrap();
     }
 
-    let text = (*OPENING_SINGLE_QUOTE_RE).replace(&text, format!("$prefix{}$word", OPENING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*OPENING_SINGLE_QUOTE_RE).replace(&text, format!("$prefix{}", OPENING_SINGLE_CURLY_QUOTE_ENTITY));
 
     text.to_string()
 }
@@ -136,15 +138,11 @@ pub fn handle_closing_single_quotes(text: &str) -> String {
         //
         // This is a special case to handle something like
         // "<i>Custer</i>'s Last Stand.".
-        static ref CLOSING_SINGLE_QUOTE_RE_1: Regex =
-            Regex::new(&format!(r#"(?P<close_class>{})'(?!\s | s\b | \d)"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
-
-        static ref CLOSING_SINGLE_QUOTE_RE_2: Regex =
-            Regex::new(&format!(r#"(?P<close_class>{})'(?P<word>\s | s\b)"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
+        static ref CLOSING_SINGLE_QUOTE_RE: FancyRegex =
+            FancyRegex::new(&format!(r#"(?P<close_class>{})?'((?P=close_class)|(?=\s | \s\b))"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
     }
 
-    let text = (*CLOSING_SINGLE_QUOTE_RE_1).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
-    let text = (*CLOSING_SINGLE_QUOTE_RE_2).replace(&text, format!("$close_class{}$word", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*CLOSING_SINGLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
 
     text.to_string()
 }
@@ -159,8 +157,6 @@ pub fn handle_remaining_single_quotes(text: &str) -> String {
 
 pub fn handle_opening_closing_quotes(text: &str) -> String {
 
-    // Note: as above, the regex in the Perl/Python implementations uses
-    // lookahead assertions, but we can't use them in Rust.
     lazy_static! {
 
         // [[:space:]]  a whitespace char, or
@@ -174,9 +170,9 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
         //
         // [[:word:]]   followed by a word character\
         //
-        static ref OPENING_DOUBLE_QUOTE_RE: Regex =
-            Regex::new(&format!(
-                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{};)'(?P<word>[[:word:]])"#,
+        static ref OPENING_DOUBLE_QUOTE_RE: FancyRegex =
+            FancyRegex::new(&format!(
+                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{};)'(?=[[:word:]])"#,
                 EN_DASH_ENTITY,
                 EM_DASH_ENTITY,
                 EN_DASH_HEX_ENTITY,
@@ -184,7 +180,9 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
             )).unwrap();
     }
 
-    let text = (*OPENING_DOUBLE_QUOTE_RE).replace(&text, format!("$prefix{}$word", OPENING_DOUBLE_CURLY_QUOTE_ENTITY));
+    let text = (*OPENING_DOUBLE_QUOTE_RE).replace(
+        &text, format!("$prefix{}", OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
+    );
 
     text.to_string()
 }
@@ -192,15 +190,11 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
 pub fn handle_closing_double_quotes(text: &str) -> String {
 
     lazy_static! {
-        static ref CLOSING_DOUBLE_QUOTE_RE_1: Regex =
-            Regex::new(&format!(r#"(?P<close_class>{})?"(?P<space>[[:space:]])"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
-
-        static ref CLOSING_DOUBLE_QUOTE_RE_2: Regex =
-            Regex::new(&format!(r#"(?P<close_class>{})""#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
+        static ref CLOSING_DOUBLE_QUOTE_RE: FancyRegex =
+            FancyRegex::new(&format!(r#"(?P<close_class>{})?"((?P=close_class)|(?=[[:space:]]))"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
     }
 
-    let text = (*CLOSING_DOUBLE_QUOTE_RE_1).replace(&text, format!("$close_class{}$space", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY));
-    let text = (*CLOSING_DOUBLE_QUOTE_RE_2).replace(&text, format!("$close_class{}", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY));
+    let text = (*CLOSING_DOUBLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY));
 
     text.to_string()
 }
