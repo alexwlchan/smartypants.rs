@@ -1,23 +1,79 @@
-#[cfg(test)]
-mod smartypants_tests {
-    use crate::smartypants;
-    use crate::SubstitutionConfig;
+#![allow(warnings)]
 
-    #[test]
-    fn it_converts_double_dash_to_en_dash() {
-        let config = SubstitutionConfig::default();
+use crate::smartypants;
+use crate::config::{SubstitutionConfig, DashesSubstitution, EllipsesSubstitution, EntitiesSubstitution, QuotesSubstitution, SubstitutionConfigHelpers};
 
-        let result = smartypants("Nothing endures but change. -- Heraclitus", &config);
-        assert_eq!(result, "Nothing endures but change. &#8211; Heraclitus");
+macro_rules! smartypants_tests {
+    ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (input, expected, config) = $value;
+                assert_eq!(expected, smartypants(input, &config));
+            }
+        )*
     }
+}
 
-    #[test]
-    fn it_converts_multiple_dashes() {
-        let config = SubstitutionConfig::default();
+smartypants_tests! {
+    double_dash_to_en_dash: (
+        "Nothing endures but change. -- Heraclitus",
+        "Nothing endures but change. &#8211; Heraclitus",
+        SubstitutionConfig::default()
+    ),
 
-        let result = smartypants("Life itself is the proper binge. --- Julia Child (1912--2004)", &config);
-        assert_eq!(result, "Life itself is the proper binge. &#8212; Julia Child (1912&#8211;2004)");
-    }
+    multiple_dashes: (
+        "Life itself is the proper binge. --- Julia Child (1912--2004)",
+        "Life itself is the proper binge. &#8212; Julia Child (1912&#8211;2004)",
+        SubstitutionConfig::default()
+    ),
+
+    can_skip_dashes_substitution: (
+        "Life itself is the proper binge. --- Julia Child (1912--2004)",
+        "Life itself is the proper binge. --- Julia Child (1912--2004)",
+        SubstitutionConfig::default()
+            .with_double_dash(DashesSubstitution::DoNothing)
+            .with_triple_dash(DashesSubstitution::DoNothing),
+    ),
+
+    dashes_and_quotes: (
+        r#""foo" -- bar"#,
+        r#"&#8220;foo&#8221; &#8211; bar"#,
+        SubstitutionConfig::default()
+    ),
+
+    dashes_and_quotes_with_quotes_disabled: (
+        r#""foo" -- bar"#,
+        r#""foo" &#8211; bar"#,
+        SubstitutionConfig::default()
+            .with_quote_chars(QuotesSubstitution::DoNothing)
+    ),
+
+    mixed_quotes: (
+        r#""Isn't this fun?""#,
+        r#"&#8220;Isn&#8217;t this fun?&#8221;"#,
+        SubstitutionConfig::default()
+    ),
+
+    mixed_quotes_with_quotes_disabled: (
+        r#""Isn't this fun?""#,
+        r#""Isn't this fun?""#,
+        SubstitutionConfig::default()
+            .with_quote_chars(QuotesSubstitution::DoNothing)
+    ),
+    //
+    // backticks: (
+    //     r#"``Isn't this fun?''"#,
+    //     r#"&#8220;Isn't this fun?&#8221;"#,
+    //     SubstitutionConfig::default(),
+    // ),
+    //
+    // backticks_with_backticks_disabled: (
+    //     r#"``Isn't this fun?''"#,
+    //     r#"``Isn't this fun?''"#,
+    //     SubstitutionConfig::default()
+    //         .with_backticks(QuotesSubstitution::DoNothing),
+    // ),
 }
 
 

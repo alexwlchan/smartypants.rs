@@ -72,11 +72,15 @@ pub fn convert_quotes(text: &str, prev_token_last_char: &Option<char>) -> String
             let text = quotes::handle_double_sets_of_quotes(&text);
             let text = quotes::handle_decade_abbreviations(&text);
 
+            println!("4 = {}", text);
             let text = quotes::handle_opening_single_quotes(&text);
+            println!("5 = {}", text);
             let text = quotes::handle_closing_single_quotes(&text);
+            println!("6 = {}", text);
             let text = quotes::handle_remaining_single_quotes(&text);
+            println!("7 = {}", text);
 
-            let text = quotes::handle_opening_closing_quotes(&text);
+            let text = quotes::handle_opening_double_quotes(&text);
             let text = quotes::handle_closing_double_quotes(&text);
             let text = quotes::handle_remaining_double_quotes(&text);
 

@@ -53,8 +53,11 @@ pub struct SubstitutionConfig {
     /// Whether to convert ellipses (`...`) into ellipsis HTML entities
     pub ellipses: EllipsesSubstitution,
 
-    /// Whether to convert backticks (```backticks''`) to curly quotes
-    pub backticks: QuotesSubstitution,
+    /// Whether to convert single backticks (``backticks'`) to curly quotes
+    pub single_backticks: QuotesSubstitution,
+
+    /// Whether to convert single backticks (```backticks''`) to curly quotes
+    pub double_backticks: QuotesSubstitution,
 
     /// Whether to convert normal quotes (`"` and `'`) to curly quotes
     pub quote_chars: QuotesSubstitution,
@@ -69,18 +72,20 @@ impl Default for SubstitutionConfig {
             double_dash: DashesSubstitution::EnDash,
             triple_dash: DashesSubstitution::EmDash,
             ellipses: EllipsesSubstitution::ConvertToEntity,
-            backticks: QuotesSubstitution::ConvertToCurly,
+            single_backticks: QuotesSubstitution::DoNothing,
+            double_backticks: QuotesSubstitution::ConvertToCurly,
             quote_chars: QuotesSubstitution::ConvertToCurly,
             entities: EntitiesSubstitution::HtmlNumericEntities,
         }
     }
 }
 
-trait SubstitutionConfigHelpers {
+pub trait SubstitutionConfigHelpers {
     fn with_double_dash(self, substitution: DashesSubstitution) -> Self;
     fn with_triple_dash(self, substitution: DashesSubstitution) -> Self;
     fn with_ellipses(self, substitution: EllipsesSubstitution) -> Self;
-    fn with_backticks(self, substitution: QuotesSubstitution) -> Self;
+    fn with_single_backticks(self, substitution: QuotesSubstitution) -> Self;
+    fn with_double_backticks(self, substitution: QuotesSubstitution) -> Self;
     fn with_quote_chars(self, substitution: QuotesSubstitution) -> Self;
     fn with_entities(self, substitution: EntitiesSubstitution) -> Self;
 }
@@ -107,9 +112,16 @@ impl SubstitutionConfigHelpers for SubstitutionConfig {
         }
     }
 
-    fn with_backticks(self, substitution: QuotesSubstitution) -> Self {
+    fn with_single_backticks(self, substitution: QuotesSubstitution) -> Self {
         SubstitutionConfig {
-            backticks: substitution,
+            single_backticks: substitution,
+            ..self
+        }
+    }
+
+    fn with_double_backticks(self, substitution: QuotesSubstitution) -> Self {
+        SubstitutionConfig {
+            double_backticks: substitution,
             ..self
         }
     }

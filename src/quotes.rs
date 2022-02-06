@@ -139,7 +139,7 @@ pub fn handle_closing_single_quotes(text: &str) -> String {
         // This is a special case to handle something like
         // "<i>Custer</i>'s Last Stand.".
         static ref CLOSING_SINGLE_QUOTE_RE: FancyRegex =
-            FancyRegex::new(&format!(r#"(?P<close_class>{})?'((?P=close_class)|(?=\s | \s\b))"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
+            FancyRegex::new(&format!(r#"(?P<close_class>{})?'((?P=close_class)|(?=\s|\s\b))"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
     }
 
     let text = (*CLOSING_SINGLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
@@ -155,8 +155,7 @@ pub fn handle_remaining_single_quotes(text: &str) -> String {
     text.replace("'", OPENING_SINGLE_CURLY_QUOTE_ENTITY)
 }
 
-pub fn handle_opening_closing_quotes(text: &str) -> String {
-
+pub fn handle_opening_double_quotes(text: &str) -> String {
     lazy_static! {
 
         // [[:space:]]  a whitespace char, or
@@ -168,11 +167,11 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
         //
         // '            the quote
         //
-        // [[:word:]]   followed by a word character\
+        // [[:word:]]   followed by a word character
         //
         static ref OPENING_DOUBLE_QUOTE_RE: FancyRegex =
             FancyRegex::new(&format!(
-                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{};)'(?=[[:word:]])"#,
+                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{})"(?=[[:word:]])"#,
                 EN_DASH_ENTITY,
                 EM_DASH_ENTITY,
                 EN_DASH_HEX_ENTITY,
@@ -188,10 +187,9 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
 }
 
 pub fn handle_closing_double_quotes(text: &str) -> String {
-
     lazy_static! {
         static ref CLOSING_DOUBLE_QUOTE_RE: FancyRegex =
-            FancyRegex::new(&format!(r#"(?P<close_class>{})?"((?P=close_class)|(?=[[:space:]]))"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
+            FancyRegex::new(&format!(r#"(?P<close_class>{})?"((?P=close_class)|(?=[[:space:]])|$)"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
     }
 
     let text = (*CLOSING_DOUBLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY));
@@ -204,7 +202,7 @@ pub fn handle_closing_double_quotes(text: &str) -> String {
 ///
 /// At this point, any remaining double quotes should be opening ones.
 pub fn handle_remaining_double_quotes(text: &str) -> String {
-    text.replace("'", OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
+    text.replace("\"", OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
 }
 
 /// Returns true if `c` is whitespace, false otherwise
