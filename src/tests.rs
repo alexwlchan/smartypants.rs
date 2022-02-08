@@ -61,19 +61,27 @@ smartypants_tests! {
         SubstitutionConfig::default()
             .with_quote_chars(QuotesSubstitution::DoNothing)
     ),
-    //
-    // backticks: (
-    //     r#"``Isn't this fun?''"#,
-    //     r#"&#8220;Isn't this fun?&#8221;"#,
-    //     SubstitutionConfig::default(),
-    // ),
-    //
-    // backticks_with_backticks_disabled: (
-    //     r#"``Isn't this fun?''"#,
-    //     r#"``Isn't this fun?''"#,
-    //     SubstitutionConfig::default()
-    //         .with_backticks(QuotesSubstitution::DoNothing),
-    // ),
+
+    backticks: (
+        r#"``Isn't this fun?''"#,
+        r#"&#8220;Isn't this fun?&#8221;"#,
+        SubstitutionConfig::default()
+            .with_quote_chars(QuotesSubstitution::DoNothing),
+    ),
+
+    backticks_with_backticks_disabled: (
+        r#"``Isn't this fun?''"#,
+        r#"``Isn't this fun?''"#,
+        SubstitutionConfig::default()
+            .with_double_backticks(QuotesSubstitution::DoNothing)
+            .with_quote_chars(QuotesSubstitution::DoNothing),
+    ),
+
+    double_sets_of_quotes: (
+        r#"<p>He said, "'Quoted' words in a larger quote."</p>"#,
+        r#"<p>He said, &#8220;&#8216;Quoted&#8217; words in a larger quote.&#8221;</p>"#,
+        SubstitutionConfig::default()
+    ),
 }
 
 

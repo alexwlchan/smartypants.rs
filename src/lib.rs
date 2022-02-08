@@ -9,6 +9,7 @@ mod entities;
 mod quotes;
 mod tokenize;
 mod tests;
+mod utils;
 
 use config::{SubstitutionConfig, DashesSubstitution, EllipsesSubstitution, EntitiesSubstitution, QuotesSubstitution};
 use tokenize::Token;

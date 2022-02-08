@@ -9,6 +9,7 @@ use regex::Regex;
 use fancy_regex::{Regex as FancyRegex};
 
 use crate::entities::*;
+use crate::utils::*;
 
 /// Handle the special case of a single-character ' token.
 ///
@@ -133,16 +134,25 @@ pub fn handle_opening_single_quotes(text: &str) -> String {
 pub fn handle_closing_single_quotes(text: &str) -> String {
 
     lazy_static! {
-        // This includes lookaheads for a whitespace char or an 's'
-        // at a word ending position.
+        // If a single quote is preceded by anything which isn't whitespace
+        // or a parenthetical, then it's a closing quote.
+        static ref CLOSING_SINGLE_QUOTE_RE_1: FancyRegex =
+            create_re(r#"(?x)
+                (?P<close_class>[^ \t\r\n\[\{\(\-])
+                '
+            "#);
+
+        // If a single quote is followed by a letter, or an 's' at a word
+        // ending position, then it's a closing quote.
         //
         // This is a special case to handle something like
         // "<i>Custer</i>'s Last Stand.".
-        static ref CLOSING_SINGLE_QUOTE_RE: FancyRegex =
-            FancyRegex::new(&format!(r#"(?P<close_class>{})?'((?P=close_class)|(?=\s|\s\b))"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
+        static ref CLOSING_SINGLE_QUOTE_RE_2: FancyRegex =
+            create_re(r#"'(?=\s|s\b)"#);
     }
 
-    let text = (*CLOSING_SINGLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*CLOSING_SINGLE_QUOTE_RE_1).replace(&text, format!("$close_class{CLOSING_SINGLE_CURLY_QUOTE_ENTITY}"));
+    let text = (*CLOSING_SINGLE_QUOTE_RE_2).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
 
     text.to_string()
 }
