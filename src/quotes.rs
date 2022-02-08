@@ -152,7 +152,7 @@ pub fn handle_closing_single_quotes(text: &str) -> String {
     }
 
     let text = (*CLOSING_SINGLE_QUOTE_RE_1).replace(&text, format!("$close_class{CLOSING_SINGLE_CURLY_QUOTE_ENTITY}"));
-    let text = (*CLOSING_SINGLE_QUOTE_RE_2).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*CLOSING_SINGLE_QUOTE_RE_2).replace(&text, CLOSING_SINGLE_CURLY_QUOTE_ENTITY);
 
     text.to_string()
 }
