@@ -23,6 +23,11 @@
 
 use regex::Regex;
 
+// Other SmartyPants implementations (e.g. Perl, Python, Ruby) store
+// each token as an array of two items, where the first item tells you
+// what sort of token it is, and the second item the contents.
+//
+// But hey, it's 2022, we can use enums now.
 #[derive(Debug)]
 pub enum Token {
     Tag(String),
@@ -50,7 +55,16 @@ impl PartialEq for Token {
 //      than slicing into the string
 //
 lazy_static! {
-    static ref TAG_SOUP: Regex = Regex::new("(?P<text>[^<]*)(?P<tag><!--.*?--\\s*>|<[^>]*>)?").unwrap();
+    static ref TAG_SOUP: Regex = Regex::new(r#"(?x)
+        (?P<text>[^<]*)         # anything not an opening angle bracket (<)
+        (?P<tag>
+            <!--.*?--\\s*>      # anything like an HTML comment <!-- … -->
+            |                   #   or
+            <[^>]*>             # an opening angle bracket (<), then any
+                                # number of chars that aren't a closing
+                                # angle bracket (>)
+        )?
+    "#).unwrap();
 }
 
 /// Returns an array of tokens comprising the input string.

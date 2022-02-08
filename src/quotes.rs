@@ -9,6 +9,7 @@ use regex::Regex;
 use fancy_regex::{Regex as FancyRegex};
 
 use crate::entities::*;
+use crate::utils::*;
 
 /// Handle the special case of a single-character ' token.
 ///
@@ -90,12 +91,19 @@ pub fn handle_double_sets_of_quotes(text: &str) -> String {
 
 /// Handle decade abbreviations, e.g. "the '80s"
 pub fn handle_decade_abbreviations(text: &str) -> String {
+
+    // Note: the Python implementation of SmartyPants adds a Unicode
+    // boundary here (i.e. \b'(?=\d{2}s)).  This gets the incorrect
+    // behaviour, but I'm not sure why.
+    //
+    // TODO: Work out what's going on there; file a bug upstream if
+    // necessary.
     lazy_static! {
         static ref DECADE_RE: FancyRegex =
-            FancyRegex::new(r#"\b'(?=\d{2}s)"#).unwrap();
+            create_re(r#"'(?=\d{2}s)"#);
     }
 
-    let text = (*DECADE_RE).replace(&text, format!("{}$decade", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*DECADE_RE).replace(&text, CLOSING_SINGLE_CURLY_QUOTE_ENTITY);
 
     text.to_string()
 }
@@ -133,16 +141,25 @@ pub fn handle_opening_single_quotes(text: &str) -> String {
 pub fn handle_closing_single_quotes(text: &str) -> String {
 
     lazy_static! {
-        // This includes lookaheads for a whitespace char or an 's'
-        // at a word ending position.
+        // If a single quote is preceded by anything which isn't whitespace
+        // or a parenthetical, then it's a closing quote.
+        static ref CLOSING_SINGLE_QUOTE_RE_1: FancyRegex =
+            create_re(r#"(?x)
+                (?P<close_class>[^ \t\r\n\[\{\(\-])
+                '
+            "#);
+
+        // If a single quote is followed by a letter, or an 's' at a word
+        // ending position, then it's a closing quote.
         //
         // This is a special case to handle something like
         // "<i>Custer</i>'s Last Stand.".
-        static ref CLOSING_SINGLE_QUOTE_RE: FancyRegex =
-            FancyRegex::new(&format!(r#"(?P<close_class>{})?'((?P=close_class)|(?=\s | \s\b))"#, r#"[^ \t\r\n\[\{\(\-]"#)).unwrap();
+        static ref CLOSING_SINGLE_QUOTE_RE_2: FancyRegex =
+            create_re(r#"'(?=\s|s\b)"#);
     }
 
-    let text = (*CLOSING_SINGLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*CLOSING_SINGLE_QUOTE_RE_1).replace(&text, format!("$close_class{CLOSING_SINGLE_CURLY_QUOTE_ENTITY}"));
+    let text = (*CLOSING_SINGLE_QUOTE_RE_2).replace(&text, CLOSING_SINGLE_CURLY_QUOTE_ENTITY);
 
     text.to_string()
 }
@@ -155,8 +172,7 @@ pub fn handle_remaining_single_quotes(text: &str) -> String {
     text.replace("'", OPENING_SINGLE_CURLY_QUOTE_ENTITY)
 }
 
-pub fn handle_opening_closing_quotes(text: &str) -> String {
-
+pub fn handle_opening_double_quotes(text: &str) -> String {
     lazy_static! {
 
         // [[:space:]]  a whitespace char, or
@@ -168,11 +184,11 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
         //
         // '            the quote
         //
-        // [[:word:]]   followed by a word character\
+        // [[:word:]]   followed by a word character
         //
         static ref OPENING_DOUBLE_QUOTE_RE: FancyRegex =
             FancyRegex::new(&format!(
-                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{};)'(?=[[:word:]])"#,
+                r#"(?P<prefix>[[:space:]]|&nbsp;|--|&[mn]dash;|{}|{}|{}|{})"(?=[[:word:]])"#,
                 EN_DASH_ENTITY,
                 EM_DASH_ENTITY,
                 EN_DASH_HEX_ENTITY,
@@ -188,10 +204,9 @@ pub fn handle_opening_closing_quotes(text: &str) -> String {
 }
 
 pub fn handle_closing_double_quotes(text: &str) -> String {
-
     lazy_static! {
         static ref CLOSING_DOUBLE_QUOTE_RE: FancyRegex =
-            FancyRegex::new(&format!(r#"(?P<close_class>{})?"((?P=close_class)|(?=[[:space:]]))"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
+            FancyRegex::new(&format!(r#"(?P<close_class>{})?"((?P=close_class)|(?=[[:space:]])|$)"#, r#"[^\ \t\r\n\[\{\(\-]"#)).unwrap();
     }
 
     let text = (*CLOSING_DOUBLE_QUOTE_RE).replace(&text, format!("$close_class{}", CLOSING_DOUBLE_CURLY_QUOTE_ENTITY));
@@ -204,7 +219,7 @@ pub fn handle_closing_double_quotes(text: &str) -> String {
 ///
 /// At this point, any remaining double quotes should be opening ones.
 pub fn handle_remaining_double_quotes(text: &str) -> String {
-    text.replace("'", OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
+    text.replace("\"", OPENING_DOUBLE_CURLY_QUOTE_ENTITY)
 }
 
 /// Returns true if `c` is whitespace, false otherwise

@@ -1,5 +1,3 @@
-#![deny(warnings)]
-
 #[macro_use]
 extern crate lazy_static;
 
@@ -11,6 +9,7 @@ mod entities;
 mod quotes;
 mod tokenize;
 mod tests;
+mod utils;
 
 use config::{SubstitutionConfig, DashesSubstitution, EllipsesSubstitution, EntitiesSubstitution, QuotesSubstitution};
 use tokenize::Token;
@@ -93,13 +92,14 @@ fn handle_text_token(text: String, config: &SubstitutionConfig, prev_token_last_
 
         // Note: backticks need to be processed before quotes, and double
         // backticks need to be processed before single backticks.
-        let text = match config.backticks {
-            QuotesSubstitution::ConvertToCurly => {
-                let text = converters::convert_double_backticks(&text);
-                let text = converters::convert_single_backticks(&text);
 
-                text
-            },
+        let text = match config.double_backticks {
+            QuotesSubstitution::ConvertToCurly => converters::convert_double_backticks(&text),
+            QuotesSubstitution::DoNothing      => text,
+        };
+
+        let text = match config.single_backticks {
+            QuotesSubstitution::ConvertToCurly => converters::convert_single_backticks(&text),
             QuotesSubstitution::DoNothing      => text,
         };
 
