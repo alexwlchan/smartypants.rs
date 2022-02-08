@@ -82,6 +82,12 @@ smartypants_tests! {
         r#"<p>He said, &#8220;&#8216;Quoted&#8217; words in a larger quote.&#8221;</p>"#,
         SubstitutionConfig::default()
     ),
+
+    decade_substitutions: (
+        r#"It's the '80s"#,
+        r#"It&#8217;s the &#8217;80s"#,
+        SubstitutionConfig::default()
+    ),
 }
 
 

@@ -91,12 +91,19 @@ pub fn handle_double_sets_of_quotes(text: &str) -> String {
 
 /// Handle decade abbreviations, e.g. "the '80s"
 pub fn handle_decade_abbreviations(text: &str) -> String {
+
+    // Note: the Python implementation of SmartyPants adds a Unicode
+    // boundary here (i.e. \b'(?=\d{2}s)).  This gets the incorrect
+    // behaviour, but I'm not sure why.
+    //
+    // TODO: Work out what's going on there; file a bug upstream if
+    // necessary.
     lazy_static! {
         static ref DECADE_RE: FancyRegex =
-            FancyRegex::new(r#"\b'(?=\d{2}s)"#).unwrap();
+            create_re(r#"'(?=\d{2}s)"#);
     }
 
-    let text = (*DECADE_RE).replace(&text, format!("{}$decade", CLOSING_SINGLE_CURLY_QUOTE_ENTITY));
+    let text = (*DECADE_RE).replace(&text, CLOSING_SINGLE_CURLY_QUOTE_ENTITY);
 
     text.to_string()
 }
